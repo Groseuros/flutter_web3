@@ -49,7 +49,7 @@ class Transaction<T extends _TransactionImpl> extends Interop<T> {
   /// Each transaction sent to the network from an account includes this, which ensures the order and non-replayability of a transaction.
   ///
   /// This must be equal to the current number of transactions ever sent to the network by the from address.
-  int get nounce => impl.nounce;
+  int get nonce => impl.nonce;
 
   /// The r portion of the elliptic curve signatures for transaction.
   ///
@@ -199,7 +199,7 @@ class TransactionRequest extends Interop<_TransactionRequestImpl> {
     BigInt? value,
     BigInt? gasLimit,
     BigInt? gasPrice,
-    int? nounce,
+    int? nonce,
     String? data,
     BigInt? maxFeePerGas,
     BigInt? maxPriorityFeePerGas,
@@ -211,7 +211,7 @@ class TransactionRequest extends Interop<_TransactionRequestImpl> {
         from: from,
         data: data,
         value: value?.toBigNumber,
-        nonce: nounce,
+        nonce: nonce,
         gasLimit: gasLimit?.toBigNumber,
         gasPrice: gasPrice?.toBigNumber,
         accessList: accessList?.impl,

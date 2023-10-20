@@ -47,7 +47,7 @@ class _RawBlock<T extends _RawBlockImpl> extends Interop<T> {
   String get miner => impl.miner;
 
   /// The nonce used as part of the proof-of-work to mine this block.
-  int get nounce => impl.nounce;
+  int get nonce => impl.nonce;
 
   /// The height (number) of this block.
   int get number => impl.number;
