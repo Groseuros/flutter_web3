@@ -8,8 +8,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) =>
-      GetMaterialApp(title: 'Flutter Web3 Example', home: Home());
+  Widget build(BuildContext context) => GetMaterialApp(title: 'Flutter Web3 Example', home: Home());
 }
 
 class HomeController extends GetxController {
@@ -94,8 +93,7 @@ class HomeController extends GetxController {
       await ethereum!.walletAddChain(
         chainId: 97,
         chainName: 'Binance Testnet',
-        nativeCurrency:
-            CurrencyParams(name: 'BNB', symbol: 'BNB', decimals: 18),
+        nativeCurrency: CurrencyParams(name: 'BNB', symbol: 'BNB', decimals: 18),
         rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
       );
     });
@@ -125,29 +123,21 @@ class Home extends StatelessWidget {
               else if (h.isConnected && !h.isInOperatingChain)
                 shown = 'Wrong chain! Please connect to BSC. (56)';
               else if (Ethereum.isSupported)
-                return OutlinedButton(
-                    child: Text('Connect'), onPressed: h.connectProvider);
+                return OutlinedButton(child: Text('Connect'), onPressed: h.connectProvider);
               else
                 shown = 'Your browser is not supported!';
 
-              return Text(shown,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20));
+              return Text(shown, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20));
             }),
             Container(height: 30),
             if (h.isConnected && h.isInOperatingChain) ...[
-              TextButton(
-                  onPressed: h.getLastestBlock,
-                  child: Text('get lastest block')),
+              TextButton(onPressed: h.getLastestBlock, child: Text('get lastest block')),
               Container(height: 10),
-              TextButton(
-                  onPressed: h.testProvider,
-                  child: Text('test binance rpc provider')),
+              TextButton(onPressed: h.testProvider, child: Text('test binance rpc provider')),
               Container(height: 10),
               TextButton(onPressed: h.test, child: Text('test')),
               Container(height: 10),
-              TextButton(
-                  onPressed: h.testSwitchChain,
-                  child: Text('test switch chain')),
+              TextButton(onPressed: h.testSwitchChain, child: Text('test switch chain')),
             ],
             Container(height: 30),
             Row(
@@ -155,8 +145,7 @@ class Home extends StatelessWidget {
               children: [
                 Text('Wallet Connect connected: ${h.wcConnected}'),
                 Container(width: 10),
-                OutlinedButton(
-                    child: Text('Connect to WC'), onPressed: h.connectWC)
+                OutlinedButton(child: Text('Connect to WC'), onPressed: h.connectWC)
               ],
             ),
             Container(height: 30),

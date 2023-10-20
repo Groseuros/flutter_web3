@@ -1,4 +1,6 @@
-part of ethers;
+// ignore_for_file: inference_failure_on_function_invocation, strict_raw_type, avoid_dynamic_calls
+
+part of 'ethers.dart';
 
 /// A Contract is an abstraction of code that has been deployed to the blockchain.
 ///
@@ -30,22 +32,25 @@ class Contract extends Interop<_ContractImpl> {
 
   /// Instantiate [Contract] from [provider] for read-only contract calls.
   factory Contract.fromProvider(
-          String address, dynamic abi, Provider provider) =>
+    String address,
+    dynamic abi,
+    Provider provider,
+  ) =>
       Contract._(_ContractImpl(address, abi, provider.impl));
 
   /// Instantiate [Contract] from [provider] for read-write contract calls.
   factory Contract.fromSigner(String address, dynamic abi, Signer signer) =>
       Contract._(_ContractImpl(address, abi, signer.impl));
 
-  const Contract._(_ContractImpl impl) : super.internal(impl);
+  const Contract._(super.impl) : super.internal();
 
   /// This is the address (or ENS name) the contract was constructed with.
   String get address => impl.address;
 
   /// If the [Contract] object is the result of a `ContractFactory` deployment, this is the transaction which was used to deploy the contract.
-  Future<TransactionResponse> get deployTransaction async =>
-      TransactionResponse._(
-          await _get<_TransactionResponseImpl>('deployTransaction'));
+  Future<TransactionResponse> get deployTransaction async => TransactionResponse._(
+        await _get<_TransactionResponseImpl>('deployTransaction'),
+      );
 
   /// This is the ABI as an [Interface].
   Interface get interface => impl.interface;
@@ -56,9 +61,9 @@ class Contract extends Interop<_ContractImpl> {
   /// If a [Provider] was provided to the constructor, this is that provider. If a [Signer] was provided that had a [Provider], this is that provider.
   Provider get provider => Provider._(impl.provider);
 
-  /// This is a Future that will resolve to the address [this] is attached to.
+  /// This is a Future that will resolve to the address this is attached to.
   ///
-  /// If an Address was provided to the constructor, it will be equal to [this]. If an ENS name was provided, this will be the resolved address.
+  /// If an Address was provided to the constructor, it will be equal to this. If an ENS name was provided, this will be the resolved address.
   Future<String> get resolvedAddress => _get<String>('resolvedAddress');
 
   /// If a [Signer] was provided to the constructor, this is that signer.
@@ -69,8 +74,7 @@ class Contract extends Interop<_ContractImpl> {
   /// A constant method is read-only and evaluates a small amount of EVM code against the current blockchain state and can be computed by asking a single node, which can return a result.
   ///
   /// It is therefore free and does not require any ether, but cannot make changes to the blockchain state.
-  Future<T> call<T>(String method, [List<dynamic> args = const []]) =>
-      _call<T>(method, args);
+  Future<T> call<T>(String method, [List<dynamic> args = const []]) => _call<T>(method, args);
 
   /// Returns a new instance of the [Contract] attached to [addressOrName].
   ///
@@ -101,13 +105,18 @@ class Contract extends Interop<_ContractImpl> {
   /// Returns the estimate units of gas that would be required to execute the `method` with `args` and `override`.
   ///
   /// The `override` are identical to the overrides above for read-only or write methods, depending on the type of call of `method`.
-  Future<BigInt> estimateGas(String method,
-          [List<dynamic> args = const [],
-          TransactionOverride? override]) async =>
-      (await promiseToFuture<BigNumber>(callMethod(
-              getProperty(impl, 'estimateGas'),
-              method,
-              override != null ? [...args, override.impl] : args)))
+  Future<BigInt> estimateGas(
+    String method, [
+    List<dynamic> args = const [],
+    TransactionOverride? override,
+  ]) async =>
+      (await promiseToFuture<BigNumber>(
+        callMethod(
+          getProperty(impl, 'estimateGas'),
+          method,
+          override != null ? [...args, override.impl] : args,
+        ),
+      ))
           .toBigInt;
 
   /// Return a filter for [eventName], optionally filtering by additional [args] constraints.
@@ -117,12 +126,10 @@ class Contract extends Interop<_ContractImpl> {
       Filter._(callMethod(getProperty(impl, 'filters'), eventName, args));
 
   /// Returns the number of listeners for the [event]. If no [event] is provided, the total number of listeners is returned.
-  int listenerCount([dynamic event]) =>
-      impl.listenerCount(event is EventFilter ? event.impl : event);
+  int listenerCount([dynamic event]) => impl.listenerCount(event is EventFilter ? event.impl : event);
 
   /// Returns the list of Listeners for the [event].
-  List listeners(Object event) =>
-      impl.listeners(event is EventFilter ? event.impl : event);
+  List<dynamic> listeners(Object event) => impl.listeners(event is EventFilter ? event.impl : event);
 
   /// Multicall read-only constant [method] with [args]. Will use multiple https call unless [multicall] is provided.
   ///
@@ -131,6 +138,7 @@ class Contract extends Interop<_ContractImpl> {
     String method,
     List<List<dynamic>> args, [
     Multicall? multicall,
+    // ignore: avoid_positional_boolean_parameters
     bool eagerError = false,
   ]) async {
     if (multicall != null) {
@@ -138,19 +146,20 @@ class Contract extends Interop<_ContractImpl> {
         args
             .map(
               (e) => MulticallPayload.fromInterfaceFunction(
-                  address, interface, method, e),
+                address,
+                interface,
+                method,
+                e,
+              ),
             )
             .toList(),
       );
-      final decoded = res.returnData
-          .map((e) => interface.decodeFunctionResult(method, e))
-          .toList();
+      final decoded = res.returnData.map((e) => interface.decodeFunctionResult(method, e)).toList();
       switch (T) {
         case List:
           return decoded as List<T>;
         case BigInt:
-          return decoded.map((e) => BigInt.parse(e[0].toString())).toList()
-              as List<T>;
+          return decoded.map((e) => BigInt.parse(e[0].toString())).toList() as List<T>;
         default:
           return decoded.map((e) => e[0]).toList() as List<T>;
       }
@@ -165,28 +174,37 @@ class Contract extends Interop<_ContractImpl> {
   }
 
   /// Remove a [listener] for the [event]. If no [listener] is provided, all listeners for [event] are removed.
-  off(dynamic event, [Function? listener]) => callMethod(
+  dynamic off(dynamic event, [Function? listener]) => callMethod(
         impl,
         'off',
         listener != null
             ? [
-                event is EventFilter ? event.impl : event,
-                allowInterop(listener)
+                if (event is EventFilter) event.impl else event,
+                allowInterop(listener),
               ]
-            : [event is EventFilter ? event.impl : event],
+            : [if (event is EventFilter) event.impl else event],
       );
 
   /// Add a [listener] to be triggered for each [event].
-  on(dynamic event, Function listener) => callMethod(impl, 'on',
-      [event is EventFilter ? event.impl : event, allowInterop(listener)]);
+  dynamic on(dynamic event, Function listener) => callMethod(
+        impl,
+        'on',
+        [if (event is EventFilter) event.impl else event, allowInterop(listener)],
+      );
 
   /// Add a [listener] to be triggered for only the next [event], at which time it will be removed.
-  once(dynamic event, Function listener) => callMethod(impl, 'once',
-      [event is EventFilter ? event.impl : event, allowInterop(listener)]);
+  dynamic once(dynamic event, Function listener) => callMethod(
+        impl,
+        'once',
+        [if (event is EventFilter) event.impl else event, allowInterop(listener)],
+      );
 
   /// Return a List of [Log] that have been emitted by the Contract by the [filter]. Optinally constraint from [startBlock] to [endBlock].
-  Future<List<Event>> queryFilter(EventFilter filter,
-          [dynamic startBlock, dynamic endBlock]) async =>
+  Future<List<Event>> queryFilter(
+    EventFilter filter, [
+    dynamic startBlock,
+    dynamic endBlock,
+  ]) async =>
       (await _call<List>(
         'queryFilter',
         [
@@ -196,12 +214,11 @@ class Contract extends Interop<_ContractImpl> {
         ]..removeWhere((e) => e == null),
       ))
           .cast<_EventImpl>()
-          .map((e) => Event._(e))
+          .map(Event._)
           .toList();
 
   /// Remove all the listeners for the [event]. If no [event] is provided, all events are removed.
-  removeAllListeners([dynamic event]) =>
-      impl.removeAllListeners(event is EventFilter ? event.impl : event);
+  dynamic removeAllListeners([dynamic event]) => impl.removeAllListeners(event is EventFilter ? event.impl : event);
 
   /// Send write [method] with [args], [override] may be include to send the Ether or adjust transaction options.
   ///
@@ -212,15 +229,20 @@ class Contract extends Interop<_ContractImpl> {
   /// This transaction will be verified by every node on the entire network as well by the miner who will compute the new state of the blockchain after executing it against the current state.
   ///
   /// It cannot return a result. If a result is required, it should be logged using a Solidity event (or EVM log), which can then be queried from the transaction receipt.
-  Future<TransactionResponse> send(String method,
-          [List<dynamic> args = const [],
-          TransactionOverride? override]) async =>
-      TransactionResponse._(await _call<_TransactionResponseImpl>(
-          method, override != null ? [...args, override.impl] : args));
+  Future<TransactionResponse> send(
+    String method, [
+    List<dynamic> args = const [],
+    TransactionOverride? override,
+  ]) async =>
+      TransactionResponse._(
+        await _call<_TransactionResponseImpl>(
+          method,
+          override != null ? [...args, override.impl] : args,
+        ),
+      );
 
   @override
-  String toString() =>
-      'Contract: $address connected to ${isReadOnly ? 'provider' : 'signer'}';
+  String toString() => 'Contract: $address connected to ${isReadOnly ? 'provider' : 'signer'}';
 
   Future<T> _call<T>(String method, [List<dynamic> args = const []]) async {
     try {
@@ -228,7 +250,8 @@ class Contract extends Interop<_ContractImpl> {
         case BigInt:
           return (await call<BigNumber>(method, args)).toBigInt as T;
         default:
-          return await promiseToFuture<T>(callMethod(
+          return await promiseToFuture<T>(
+            callMethod(
               impl,
               method,
               args.map((e) {
@@ -238,26 +261,30 @@ class Contract extends Interop<_ContractImpl> {
                   return e.map((e) => e.toString()).toList();
                 } else if (e is List) {
                   return e.map((e) => e is BigInt ? e.toString() : e).toList();
-                } else
+                } else {
                   return e;
-              }).toList()));
+                }
+              }).toList(),
+            ),
+          );
       }
     } catch (error) {
-      final err = dartify(error);
+      final err = convertToDart(error);
       switch (err['code']) {
         case 4001:
-          throw EthereumUserRejected();
+          throw const EthereumUserRejected();
         default:
-          if (err['message'] != null)
-            throw EthereumException(err['code'], err['message'], err['data']);
-          else if (err['reason'] != null)
+          if (err['message'] != null) {
+            throw EthereumException(err['code'] as int, err['message'] as String, err['data']);
+          } else if (err['reason'] != null) {
             throw EthersException(
-              err['code'],
-              err['reason'],
+              err['code'] as String,
+              err['reason'] as String,
               err as Map<String, dynamic>,
             );
-          else
+          } else {
             rethrow;
+          }
       }
     }
   }

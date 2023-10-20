@@ -1,16 +1,14 @@
-part of ethers;
+part of 'ethers.dart';
 
 /// This is an interface which contains a minimal set of properties required for Externally Owned Accounts which can have certain operations performed, such as encoding as a JSON wallet.
 class ExternallyOwnedAccount extends Interop<_ExternallyOwnedAccountImpl> {
-  const ExternallyOwnedAccount._(_ExternallyOwnedAccountImpl impl)
-      : super.internal(impl);
+  const ExternallyOwnedAccount._(super.impl) : super.internal();
 
   /// The Address of this EOA.
   String get address => impl.address;
 
   /// The account HD mnemonic, if it has one and can be determined. Some sources do not encode the mnemonic, such as HD extended keys.
-  Mnemonic? get mnemonic =>
-      impl.mnemonic != null ? Mnemonic._(impl.mnemonic!) : null;
+  Mnemonic? get mnemonic => impl.mnemonic != null ? Mnemonic._(impl.mnemonic!) : null;
 
   /// The privateKey of this EOA
   String get privateKey => impl.privateKey;
@@ -23,7 +21,7 @@ class ExternallyOwnedAccount extends Interop<_ExternallyOwnedAccountImpl> {
 
 /// Mnemonic interface for mnemonic defined private key.
 class Mnemonic extends Interop<_MnemonicImpl> {
-  const Mnemonic._(_MnemonicImpl impl) : super.internal(impl);
+  const Mnemonic._(super.impl) : super.internal();
 
   /// The language of the wordlist this mnemonic is using.
   String get locale => impl.locale;
@@ -43,8 +41,7 @@ class Mnemonic extends Interop<_MnemonicImpl> {
 /// The Wallet class inherits [Signer] and can sign transactions and messages using a private key as a standard Externally Owned Account (EOA).
 class Wallet extends Signer<_WalletImpl> {
   /// Create a new Wallet instance for [privateKey] and optionally connected to the [provider].
-  factory Wallet(String privateKey, [Provider? provider]) =>
-      Wallet._(_WalletImpl(privateKey, provider?.impl));
+  factory Wallet(String privateKey, [Provider? provider]) => Wallet._(_WalletImpl(privateKey, provider?.impl));
 
   /// Returns a new [Wallet] with a random private key, generated from cryptographically secure entropy sources. If the current environment does not have a secure entropy source, an error is thrown.
   ///
@@ -60,31 +57,30 @@ class Wallet extends Signer<_WalletImpl> {
   /// Create an instance from a [mnemonic] phrase.
   ///
   /// If [path] is not specified, the Ethereum default path is used (i.e. m/44'/60'/0'/0/0).
-  factory Wallet.fromMnemonic(String mnemonic, [String? path]) =>
-      Wallet._(_WalletImpl.fromMnemonic(mnemonic, path));
+  factory Wallet.fromMnemonic(String mnemonic, [String? path]) => Wallet._(_WalletImpl.fromMnemonic(mnemonic, path));
 
-  const Wallet._(_WalletImpl impl) : super._(impl);
+  const Wallet._(_WalletImpl super.impl) : super._();
 
   /// The Address of this EOA.
   String get address => impl.address;
 
   /// The account HD mnemonic, if it has one and can be determined. Some sources do not encode the mnemonic, such as HD extended keys.
-  Mnemonic? get mnemonic =>
-      impl.mnemonic != null ? Mnemonic._(impl.mnemonic!) : null;
+  Mnemonic? get mnemonic => impl.mnemonic != null ? Mnemonic._(impl.mnemonic!) : null;
 
   /// The privateKey of this EOA
   String get privateKey => impl.privateKey;
 
   /// The provider this wallet is connected to, which will be used for any Blockchain Methods methods. This can be `null`.
-  Provider? get provider =>
-      impl.provider != null ? Provider._(impl.provider!) : null;
+  Provider? get provider => impl.provider != null ? Provider._(impl.provider!) : null;
 
   /// The uncompressed public key for this Wallet represents.
   String get publicKey => impl.publicKey;
 
   /// Encrypt the wallet using [password] returning a Future which resolves to a JSON wallet.
-  Future<String> encrypt(String password,
-          [void Function(double progress)? progressCallback]) =>
+  Future<String> encrypt(
+    String password, [
+    void Function(double progress)? progressCallback,
+  ]) =>
       promiseToFuture<String>(
         impl.encrypt(
           password,
@@ -98,7 +94,7 @@ class Wallet extends Signer<_WalletImpl> {
 
   /// Create an instance from an encrypted [json] wallet with [password].
   ///
-  /// If [progress] is provided it will be called during decryption with a value between 0 and 1 indicating the progress towards completion.
+  /// If progress is provided it will be called during decryption with a value between 0 and 1 indicating the progress towards completion.
   static Future<Wallet> fromEncryptedJson(
     String json,
     String password, [

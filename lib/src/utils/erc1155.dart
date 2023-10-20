@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../ethers/ethers.dart';
+import 'package:flutter_web3/src/ethers/ethers.dart';
 
 /// Dart Class for ERC1155 Contract, A standard API for fungibility-agnostic and gas-efficient tokens within smart contracts.
 class ContractERC1155 {
@@ -32,32 +32,42 @@ class ContractERC1155 {
       : assert(providerOrSigner != null, 'providerOrSigner should not be null'),
         assert(address.isNotEmpty, 'address should not be empty'),
         assert(
-            EthUtils.isAddress(address), 'address should be in address format'),
-        contract =
-            Contract(address, abi ?? ContractERC1155.abi, providerOrSigner);
+          EthUtils.isAddress(address),
+          'address should be in address format',
+        ),
+        contract = Contract(address, abi ?? ContractERC1155.abi, providerOrSigner);
 
   /// [Log] of `ApprovalForAll` events.
-  Future<List<Event>> approvalForAllEvents(
-          [List<dynamic>? args, dynamic startBlock, dynamic endBlock]) =>
-      contract.queryFilter(contract.getFilter('ApprovalForAll', args ?? []),
-          startBlock, endBlock);
+  Future<List<Event>> approvalForAllEvents([
+    List<dynamic>? args,
+    dynamic startBlock,
+    dynamic endBlock,
+  ]) =>
+      contract.queryFilter(
+        contract.getFilter('ApprovalForAll', args ?? []),
+        startBlock,
+        endBlock,
+      );
 
   /// Returns the amount of tokens [id] owned by [address]
-  Future<BigInt> balanceOf(String address, int id) async =>
-      contract.call<BigInt>('balanceOf', [address, id]);
+  Future<BigInt> balanceOf(String address, int id) async => contract.call<BigInt>('balanceOf', [address, id]);
 
   /// Returns the amount of tokens [ids] owned by [addresses]
   Future<List<BigInt>> balanceOfBatch(
-          List<String> addresses, List<int> ids) async =>
-      (await contract.call<List>('balanceOfBatch', [addresses, ids]))
+    List<String> addresses,
+    List<int> ids,
+  ) async =>
+      (await contract.call<List<BigInt>>('balanceOfBatch', [addresses, ids]))
           .cast<BigNumber>()
           .map((e) => e.toBigInt)
           .toList();
 
   /// Returns the amount of tokens [ids] owned by [address]
   Future<List<BigInt>> balanceOfBatchSingleAddress(
-          String address, List<int> ids) async =>
-      (await contract.call<List>(
+    String address,
+    List<int> ids,
+  ) async =>
+      (await contract.call<List<BigInt>>(
         'balanceOfBatch',
         [
           List.generate(ids.length, (index) => address),
@@ -70,7 +80,7 @@ class ContractERC1155 {
 
   /// Connect current [contract] with [providerOrSigner]
   void connect(dynamic providerOrSigner) {
-    assert(providerOrSigner is Provider || providerOrSigner is Signer);
+    assert(providerOrSigner is Provider || providerOrSigner is Signer, 'Object is not a Provider nor a Signer');
     contract = contract.connect(providerOrSigner);
   }
 
@@ -84,8 +94,7 @@ class ContractERC1155 {
       String account,
       String operator,
       Event event,
-    )
-        callback,
+    ) callback,
   ) =>
       contract.on(
         'ApprovalForAll',
@@ -103,8 +112,7 @@ class ContractERC1155 {
       String from,
       String to,
       Event event,
-    )
-        callback,
+    ) callback,
   ) =>
       contract.on(
         'TransferBatch',
@@ -123,8 +131,7 @@ class ContractERC1155 {
       String from,
       String to,
       Event event,
-    )
-        callback,
+    ) callback,
   ) =>
       contract.on(
         'TransferSingle',
@@ -144,8 +151,10 @@ class ContractERC1155 {
     List<BigInt> amount,
     String data,
   ) =>
-      contract.send('safeBatchTransferFrom',
-          [from, to, id, amount.map((e) => e.toString()).toList(), data]);
+      contract.send(
+        'safeBatchTransferFrom',
+        [from, to, id, amount.map((e) => e.toString()).toList(), data],
+      );
 
   /// Transfers [amount] tokens of token type [id] from [from] to [to].
   Future<TransactionResponse> safeTransferFrom(
@@ -159,20 +168,34 @@ class ContractERC1155 {
 
   /// Grants or revokes permission to [spender] to transfer the caller's tokens, according to [approved],
   Future<TransactionResponse> setApprovedForAll(
-          String spender, bool approved) =>
+    String spender, {
+    required bool approved,
+  }) =>
       contract.send('setApprovedForAll', [spender, approved]);
 
   /// [Log] of `TransferBatch` events.
-  Future<List<Event>> transferBatchEvents(
-          [List<dynamic>? args, dynamic startBlock, dynamic endBlock]) =>
-      contract.queryFilter(contract.getFilter('TransferBatch', args ?? []),
-          startBlock, endBlock);
+  Future<List<Event>> transferBatchEvents([
+    List<dynamic>? args,
+    dynamic startBlock,
+    dynamic endBlock,
+  ]) =>
+      contract.queryFilter(
+        contract.getFilter('TransferBatch', args ?? []),
+        startBlock,
+        endBlock,
+      );
 
   /// [Log] of `TransferSingle` events.
-  Future<List<Event>> transferSingleEvents(
-          [List<dynamic>? args, dynamic startBlock, dynamic endBlock]) =>
-      contract.queryFilter(contract.getFilter('TransferSingle', args ?? []),
-          startBlock, endBlock);
+  Future<List<Event>> transferSingleEvents([
+    List<dynamic>? args,
+    dynamic startBlock,
+    dynamic endBlock,
+  ]) =>
+      contract.queryFilter(
+        contract.getFilter('TransferSingle', args ?? []),
+        startBlock,
+        endBlock,
+      );
 
   /// Returns the URI for token type [id].
   ///
@@ -186,25 +209,27 @@ class ContractERC1155 {
 /// Dart Class for ERC1155Burnable Contract that allows token holders to destroy both their own tokens and those that they have been approved to use.
 class ContractERC1155Burnable extends ContractERC1155 with ERC1155Supply {
   /// Instantiate ERC1155 Contract using default abi if [abi] is not `null`.
-  ContractERC1155Burnable(String address, dynamic providerOrSigner,
-      [dynamic abi])
-      : super(address, providerOrSigner, abi);
+  ContractERC1155Burnable(
+    super.address,
+    super.providerOrSigner, [
+    super.abi,
+  ]);
 }
 
 /// Dart Class for ERC1155Supply Contract that adds tracking of total supply per id to normal ERC1155.
 class ContractERC1155Supply extends ContractERC1155 with ERC1155Supply {
   /// Instantiate ERC1155 Contract using default abi if [abi] is not `null`.
-  ContractERC1155Supply(String address, dynamic providerOrSigner, [dynamic abi])
-      : super(address, providerOrSigner, abi);
+  ContractERC1155Supply(super.address, super.providerOrSigner, [super.abi]);
 }
 
 /// Dart Class for both [ContractERC1155Supply] and [ContractERC1155Burnable] combined.
-class ContractERC1155SupplyBurnable extends ContractERC1155
-    with ERC1155Supply, ERC1155Burnable {
+class ContractERC1155SupplyBurnable extends ContractERC1155 with ERC1155Supply, ERC1155Burnable {
   /// Instantiate ERC1155 Contract using default abi if [abi] is not `null`.
-  ContractERC1155SupplyBurnable(String address, dynamic providerOrSigner,
-      [dynamic abi])
-      : super(address, providerOrSigner, abi);
+  ContractERC1155SupplyBurnable(
+    super.address,
+    super.providerOrSigner, [
+    super.abi,
+  ]);
 }
 
 /// Dart Mixin for ERC1155Burnable that allows token holders to destroy both their own tokens and those that they have been approved to use.
@@ -213,7 +238,10 @@ mixin ERC1155Burnable on ContractERC1155 {
       contract.send('burn', [address, id, value.toString()]);
 
   Future<TransactionResponse> burnBatch(
-          String address, List<int> ids, List<BigInt> values) =>
+    String address,
+    List<int> ids,
+    List<BigInt> values,
+  ) =>
       contract.send('burnBatch', [
         address,
         ids,

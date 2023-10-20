@@ -1,4 +1,4 @@
-part of wallet_connect_provider;
+part of 'wallet_connect.dart';
 
 @JS()
 @anonymous
@@ -21,10 +21,11 @@ class _RequestArgumentsImpl {
   external dynamic get params;
 }
 
-@JS("default")
+@JS('default')
 class _WalletConnectProviderImpl {
   external _WalletConnectProviderImpl(
-      _WalletConnectProviderOptionsImpl options);
+    _WalletConnectProviderOptionsImpl options,
+  );
 
   external List<String> get accounts;
 
@@ -42,7 +43,7 @@ class _WalletConnectProviderImpl {
 
   external List<dynamic> listeners(String eventName);
 
-  external removeAllListeners([String? eventName]);
+  external void removeAllListeners([String? eventName]);
 }
 
 @JS()

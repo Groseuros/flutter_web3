@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import '../ethers/ethers.dart';
-import 'multicall.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_web3/src/ethers/ethers.dart';
+import 'package:flutter_web3/src/utils/multicall.dart';
 
 /// Dart Class for ERC20 Contract, A standard API for tokens within smart contracts.
 ///
@@ -19,7 +20,7 @@ class ContractERC20 {
     'function transferFrom(address, address, uint)',
     'function approve(address, uint256)',
     'event Transfer(address indexed from, address indexed to, uint amount)',
-    'event Approval(address indexed owner, address indexed spender, uint256 value)'
+    'event Approval(address indexed owner, address indexed spender, uint256 value)',
   ];
 
   /// Ethers Contract object.
@@ -40,7 +41,9 @@ class ContractERC20 {
       : assert(providerOrSigner != null, 'providerOrSigner should not be null'),
         assert(address.isNotEmpty, 'address should not be empty'),
         assert(
-            EthUtils.isAddress(address), 'address should be in address format'),
+          EthUtils.isAddress(address),
+          'address should be in address format',
+        ),
         contract = Contract(address, abi, providerOrSigner);
 
   /// Returns the number of decimals used to get its user representation.
@@ -52,8 +55,9 @@ class ContractERC20 {
   /// Ether and Wei. This is the value `ERC20` uses, unless this function is
   /// overridden
   FutureOr<int> get decimals async {
-    if (_decimals == 0)
+    if (_decimals == 0) {
       _decimals = (await contract.call<BigInt>('decimals')).toInt();
+    }
     return _decimals;
   }
 
@@ -64,7 +68,9 @@ class ContractERC20 {
   FutureOr<String> get name async {
     try {
       if (_name.isEmpty) _name = await contract.call<String>('name');
-    } catch (error) {}
+    } catch (error) {
+      debugPrint(error.toString());
+    }
     return _name;
   }
 
@@ -76,34 +82,39 @@ class ContractERC20 {
 
   /// Returns the amount of tokens in existence.
   FutureOr<BigInt> get totalSupply async {
-    if (_totalSupply == BigInt.zero)
+    if (_totalSupply == BigInt.zero) {
       _totalSupply = await contract.call<BigInt>('totalSupply');
+    }
     return _totalSupply;
   }
 
   /// Returns the remaining number of tokens that [spender] will be allowed to spend on behalf of [owner] through `transferFrom`.
   ///
   /// This is zero by default.
-  Future<BigInt> allowance(String owner, String spender) async =>
-      contract.call<BigInt>('allowance', [owner, spender]);
+  Future<BigInt> allowance(String owner, String spender) async => contract.call<BigInt>('allowance', [owner, spender]);
 
   /// [Log] of `Approval` events.
-  Future<List<Event>> approvalEvents(
-          [List<dynamic>? args, dynamic startBlock, dynamic endBlock]) =>
+  Future<List<Event>> approvalEvents([
+    List<dynamic>? args,
+    dynamic startBlock,
+    dynamic endBlock,
+  ]) =>
       contract.queryFilter(
-          contract.getFilter('Approval', args ?? []), startBlock, endBlock);
+        contract.getFilter('Approval', args ?? []),
+        startBlock,
+        endBlock,
+      );
 
   /// Sets [amount] as the allowance of [spender] over the caller's tokens.
   Future<TransactionResponse> approve(String spender, BigInt amount) =>
       contract.send('approve', [spender, amount.toString()]);
 
   /// Returns the amount of tokens owned by [address]
-  Future<BigInt> balanceOf(String address) async =>
-      contract.call<BigInt>('balanceOf', [address]);
+  Future<BigInt> balanceOf(String address) async => contract.call<BigInt>('balanceOf', [address]);
 
   /// Connect current [contract] with [providerOrSigner]
   void connect(dynamic providerOrSigner) {
-    assert(providerOrSigner is Provider || providerOrSigner is Signer);
+    assert(providerOrSigner is Provider || providerOrSigner is Signer, 'Object is not a Provider nor a Signer');
     contract = contract.connect(providerOrSigner);
   }
 
@@ -115,23 +126,30 @@ class ContractERC20 {
   ]) async {
     assert(owners.isNotEmpty, 'Owner list empty');
     assert(spenders.isNotEmpty, 'Spender list empty');
-    assert(owners.length == spenders.length,
-        'Owner list length must be same as spender');
+    assert(
+      owners.length == spenders.length,
+      'Owner list length must be same as spender',
+    );
     if (multicall != null) {
-      final res =
-          await multicall.aggregate(Iterable<int>.generate(owners.length).map(
-        (e) {
-          final functionSig = contract.interface.getSighash('allowance');
-          final argData = abiCoder.encode(
-              ['address', 'address'], [owners[e], spenders[e]]).substring(2);
-          return MulticallPayload(contract.address, functionSig + argData);
-        },
-      ).toList());
-      return res.returnData.map((e) => BigInt.parse(e)).toList();
+      final res = await multicall.aggregate(
+        Iterable<int>.generate(owners.length).map(
+          (e) {
+            final functionSig = contract.interface.getSighash('allowance');
+            final argData = abiCoder.encode(
+              ['address', 'address'],
+              [owners[e], spenders[e]],
+            ).substring(2);
+            return MulticallPayload(contract.address, functionSig + argData);
+          },
+        ).toList(),
+      );
+      return res.returnData.map(BigInt.parse).toList();
     } else {
-      return Future.wait(Iterable<int>.generate(owners.length).map(
-        (e) => allowance(owners[e], spenders[e]),
-      ));
+      return Future.wait(
+        Iterable<int>.generate(owners.length).map(
+          (e) => allowance(owners[e], spenders[e]),
+        ),
+      );
     }
   }
 
@@ -143,19 +161,20 @@ class ContractERC20 {
     assert(addresses.isNotEmpty, 'address should not be empty');
 
     if (multicall != null) {
-      final res = await multicall
-          .aggregate(Iterable<int>.generate(addresses.length).map(
-        (e) {
-          final functionSig = contract.interface.getSighash('balanceOf');
-          final argData =
-              abiCoder.encode(['address'], [addresses[e]]).substring(2);
-          return MulticallPayload(contract.address, functionSig + argData);
-        },
-      ).toList());
-      return res.returnData.map((e) => BigInt.parse(e)).toList();
+      final res = await multicall.aggregate(
+        Iterable<int>.generate(addresses.length).map(
+          (e) {
+            final functionSig = contract.interface.getSighash('balanceOf');
+            final argData = abiCoder.encode(['address'], [addresses[e]]).substring(2);
+            return MulticallPayload(contract.address, functionSig + argData);
+          },
+        ).toList(),
+      );
+      return res.returnData.map(BigInt.parse).toList();
     } else {
-      return Future.wait(Iterable<int>.generate(addresses.length)
-          .map((e) => balanceOf(addresses[e])));
+      return Future.wait(
+        Iterable<int>.generate(addresses.length).map((e) => balanceOf(addresses[e])),
+      );
     }
   }
 
@@ -168,13 +187,11 @@ class ContractERC20 {
       String spender,
       BigInt value,
       Event event,
-    )
-        callback,
+    ) callback,
   ) =>
       contract.on(
         'Approval',
-        (String owner, String spender, BigNumber value, dynamic data) =>
-            callback(
+        (String owner, String spender, BigNumber value, dynamic data) => callback(
           owner,
           spender,
           value.toBigInt,
@@ -191,8 +208,7 @@ class ContractERC20 {
       String to,
       BigInt amount,
       Event event,
-    )
-        callback,
+    ) callback,
   ) =>
       contract.on(
         'Transfer',
@@ -209,13 +225,22 @@ class ContractERC20 {
       contract.send('transfer', [recipient, amount.toString()]);
 
   /// [Log] of `Transfer` events.
-  Future<List<Event>> transferEvents(
-          [List<dynamic>? args, dynamic startBlock, dynamic endBlock]) =>
+  Future<List<Event>> transferEvents([
+    List<dynamic>? args,
+    dynamic startBlock,
+    dynamic endBlock,
+  ]) =>
       contract.queryFilter(
-          contract.getFilter('Transfer', args ?? []), startBlock, endBlock);
+        contract.getFilter('Transfer', args ?? []),
+        startBlock,
+        endBlock,
+      );
 
   /// Transfer token from [sender] to [recipient] in [amount]. Emits `Transfer` events when called.
   Future<TransactionResponse> transferFrom(
-          String sender, String recipient, BigInt amount) =>
+    String sender,
+    String recipient,
+    BigInt amount,
+  ) =>
       contract.send('transferFrom', [sender, recipient, amount.toString()]);
 }

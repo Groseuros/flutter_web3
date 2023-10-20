@@ -1,8 +1,8 @@
-part of ethers;
+part of 'ethers.dart';
 
 /// A [FeeData] object encapsulates the necessary fee data required to send a transaction, based on the best available recommendations.
 class FeeData extends Interop<_FeeDataImpl> {
-  FeeData._(_FeeDataImpl impl) : super.internal(impl);
+  FeeData._(super.impl) : super.internal();
 
   /// The [gasPrice] to use for legacy transactions or networks which do not support `EIP-1559`.
   BigInt? get gasPrice => impl.gasPrice?.toBigInt;

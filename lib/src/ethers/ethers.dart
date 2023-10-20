@@ -1,16 +1,15 @@
-@JS("ethers")
+@JS('ethers')
 library ethers;
 
+import 'package:flutter_web3/src/ethereum/ethereum.dart';
+import 'package:flutter_web3/src/ethereum/exception.dart';
+import 'package:flutter_web3/src/ethereum/utils.dart';
+import 'package:flutter_web3/src/ethers/exception.dart';
+import 'package:flutter_web3/src/interop_wrapper.dart';
+import 'package:flutter_web3/src/utils/multicall.dart';
+import 'package:flutter_web3/src/wallet_connect/wallet_connect.dart';
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
-
-import './exception.dart';
-import '../ethereum/ethereum.dart';
-import '../ethereum/exception.dart';
-import '../ethereum/utils.dart';
-import '../interop_wrapper.dart';
-import '../utils/multicall.dart';
-import '../wallet_connect/wallet_connect.dart';
 
 part 'access_list.dart';
 part 'block.dart';
@@ -32,13 +31,12 @@ part 'wallet.dart';
 AbiCoder get abiCoder => EthUtils.defaultAbiCoder;
 
 /// Getter for default Web3Provider object.
-Web3Provider? get provider =>
-    Ethereum.isSupported ? Web3Provider(Ethereum.provider) : null;
+Web3Provider? get provider => Ethereum.isSupported ? Web3Provider(Ethereum.provider) : null;
 
 /// The AbiCoder is a collection of Coders which can be used to encode and decode the binary data formats used to interoperate between the EVM and higher level libraries.
 ///
 /// Most developers will never need to use this class directly, since the [Interface] class greatly simplifies these operations.
-@JS("AbiCoder")
+@JS('AbiCoder')
 class AbiCoder {
   /// Decode the list [data] according to the list of [types].
   external List<dynamic> decode(List<String> types, String data);
@@ -52,7 +50,7 @@ class AbiCoder {
 /// A BigNumber is an object which safely allows mathematical operations on numbers of any magnitude.
 ///
 /// Most operations which need to return a value will return a BigNumber and parameters which accept values will generally accept them.
-@JS("BigNumber")
+@JS('BigNumber')
 class BigNumber {
   /// Returns the value of BigNumber as a base-16, 0x-prefixed DataHexString.
   external String toHexString();
@@ -63,6 +61,7 @@ class BigNumber {
   external num toNumber();
 
   /// Returns the value of BigNumber as a base-10 string.
+  @override
   external String toString();
 
   /// The constructor of BigNumber cannot be called directly. Instead, Use the static BigNumber.from.
@@ -70,7 +69,7 @@ class BigNumber {
 }
 
 /// These utilities are used extensively within the library, but are also quite useful for application developers.
-@JS("utils")
+@JS('utils')
 class EthUtils {
   /// An [AbiCoder] created when the library is imported which is used by the [Interface].
   external static AbiCoder get defaultAbiCoder;
@@ -198,7 +197,9 @@ class EthUtils {
   /// // '0x81da7abb5c9c7515f57dab2fc946f01217ab52f3bd8958bc36bd55894451a93c'
   /// ```
   external static String solidityKeccak256(
-      List<String> types, List<dynamic> values);
+    List<String> types,
+    List<dynamic> values,
+  );
 
   /// Returns the non-standard encoded [values] packed according to their respective type in [types].
   ///
@@ -222,7 +223,9 @@ class EthUtils {
   /// // '0xa5580fb602f6e2ba9c588011dc4e6c2335e0f5d970dc45869db8f217efc6911a'
   /// ```
   external static String soliditySha256(
-      List<String> types, List<dynamic> values);
+    List<String> types,
+    List<dynamic> values,
+  );
 
   /// Returns the address that signed [message] producing [signature].
   ///
@@ -234,17 +237,17 @@ class EthUtils {
 /// [BigInt] extension for converting between Dart and JS class.
 extension BigIntExtension on BigInt {
   /// Convert Dart [BigInt] to JS [BigNumber].
-  BigNumber get toBigNumber => BigNumber.from(this.toString());
+  BigNumber get toBigNumber => BigNumber.from(toString());
 }
 
 /// [BigNumber] extension for converting between Dart and JS class.
 extension BigNumberExtension on BigNumber {
   /// Convert JS [BigNumber] to Dart [BigInt].
-  BigInt get toBigInt => BigInt.parse(this.toString());
+  BigInt get toBigInt => BigInt.parse(toString());
 
   /// Convert JS [BigNumber] to Dart [int].
-  int get toInt => int.parse(this.toString());
+  int get toInt => int.parse(toString());
 
   /// Convert JS [BigNumber] to Dart [double].
-  double get toDouble => double.parse(this.toString());
+  double get toDouble => double.parse(toString());
 }

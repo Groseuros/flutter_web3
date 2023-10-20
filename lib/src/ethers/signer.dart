@@ -1,4 +1,6 @@
-part of ethers;
+// ignore_for_file: library_private_types_in_public_api, avoid_dynamic_calls
+
+part of 'ethers.dart';
 
 /// A Signer in ethers is an abstraction of an Ethereum Account, which can be used to sign messages and transactions and send signed transactions to the Ethereum Network to execute state changing operations.
 ///
@@ -9,15 +11,13 @@ class Signer<T extends _SignerImpl> extends Interop<T> {
   const Signer._(_SignerImpl impl) : super.internal(impl as T);
 
   /// Returns the result of calling using the [request], with this account address being used as the from field.
-  Future<String> call(TransactionRequest request) =>
-      _call<String>('call', [request.impl]);
+  Future<String> call(TransactionRequest request) => _call<String>('call', [request.impl]);
 
   /// Connect this [Signer] to new [provider]. May simply throw an error if changing providers is not supported.
   Signer connect(Provider provider) => Signer._(impl.connect(provider.impl));
 
   /// Returns the result of estimating the cost to send the [request], with this account address being used as the from field.
-  Future<BigInt> estimateGas(TransactionRequest request) =>
-      _call<BigInt>('estimateGas', [request.impl]);
+  Future<BigInt> estimateGas(TransactionRequest request) => _call<BigInt>('estimateGas', [request.impl]);
 
   /// Returns a Future that resolves to the account address.
   Future<String> getAddress() => _call<String>('getAddress');
@@ -44,54 +44,59 @@ class Signer<T extends _SignerImpl> extends Interop<T> {
   ///
   /// The transaction must be valid (i.e. the nonce is correct and the account has sufficient balance to pay for the transaction).
   Future<TransactionResponse> sendTransaction(
-          TransactionRequest request) async =>
-      TransactionResponse._(await _call<_TransactionResponseImpl>(
-          'sendTransaction', [request.impl]));
+    TransactionRequest request,
+  ) async =>
+      TransactionResponse._(
+        await _call<_TransactionResponseImpl>(
+          'sendTransaction',
+          [request.impl],
+        ),
+      );
 
   /// Returns a Future which resolves to the Raw Signature of [message].
-  Future<String> signMessage(String message) =>
-      _call<String>('signMessage', [message]);
+  Future<String> signMessage(String message) => _call<String>('signMessage', [message]);
 
   /// Returns a Future which resolves to the signed transaction of the [request]. This method does not populate any missing fields.
-  Future<String> signTransaction(TransactionRequest request) =>
-      _call<String>('signTransaction', [request.impl]);
+  Future<String> signTransaction(TransactionRequest request) => _call<String>('signTransaction', [request.impl]);
 
-  Future<T> _call<T>(String method, [List<dynamic> args = const []]) async {
+  Future<U> _call<U>(String method, [List<dynamic> args = const []]) async {
     try {
       switch (T) {
         case BigInt:
-          return (await _call<BigNumber>(method, args)).toBigInt as T;
+          return (await _call<BigNumber>(method, args)).toBigInt as U;
         default:
-          return await promiseToFuture<T>(callMethod(impl, method, args));
+          return await promiseToFuture<U>(callMethod(impl, method, args));
       }
     } catch (error) {
       final err = dartify(error);
       switch (err['code']) {
         case 4001:
-          throw EthereumUserRejected();
+          throw const EthereumUserRejected();
         default:
-          if (err['message'] != null)
+          if (err['message'] != null) {
             throw EthereumException(
-              err['code'],
-              err['message'],
+              err['code'] as int,
+              err['message'] as String,
               err['data'],
             );
-          else if (err['reason'] != null)
+          } else if (err['reason'] != null) {
             throw EthersException(
-              err['code'],
-              err['reason'],
+              err['code'] as String,
+              err['reason'] as String,
               err as Map<String, dynamic>,
             );
-          else
+          } else {
             rethrow;
+          }
       }
     }
   }
 
   /// Returns `true` if an only if object is a [Signer].
   static bool isSigner(Object object) {
-    if (object is Interop)
-      return object is Signer || _SignerImpl.isSigner(object.impl);
+    if (object is Interop) {
+      return object is Signer || _SignerImpl.isSigner(object.impl as Object);
+    }
     return false;
   }
 }

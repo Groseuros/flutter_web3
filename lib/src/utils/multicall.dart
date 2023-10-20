@@ -1,5 +1,5 @@
-import '../ethers/ethers.dart';
-import 'chains.dart';
+import 'package:flutter_web3/src/ethers/ethers.dart';
+import 'package:flutter_web3/src/utils/chains.dart';
 
 class Multicall {
   static const abi = [
@@ -11,36 +11,46 @@ class Multicall {
   Multicall(String multicallAddress, dynamic providerOrSigner)
       : assert(providerOrSigner != null, 'providerOrSigner should not be null'),
         assert(multicallAddress.isNotEmpty, 'address should not be empty'),
-        assert(EthUtils.isAddress(multicallAddress),
-            'address should be in address format'),
+        assert(
+          EthUtils.isAddress(multicallAddress),
+          'address should be in address format',
+        ),
         contract = Contract(multicallAddress, abi, providerOrSigner);
 
-  factory Multicall.fromChain(Chains chain, providerOrSigner) {
-    assert(chain.multicallAddress != null,
-        'Multicall not supported on this chain');
+  factory Multicall.fromChain(Chains chain, dynamic providerOrSigner) {
+    assert(
+      chain.multicallAddress != null,
+      'Multicall not supported on this chain',
+    );
     return Multicall(chain.multicallAddress!, providerOrSigner);
   }
 
   Future<MulticallResult> aggregate(List<MulticallPayload> payload) async {
     assert(payload.isNotEmpty, 'payload should not be empty');
 
-    final res = await contract.call<List>('aggregate', [
+    final res = await contract.call<List<dynamic>>('aggregate', [
       payload.map((e) => e.serialize()).toList(),
     ]);
     return MulticallResult(
-        int.parse(res[0].toString()), (res[1] as List).cast());
+      int.parse(res[0].toString()),
+      (res[1] as List).cast(),
+    );
   }
 
   Future<List<BigInt>> multipleERC20Balances(
     List<String> tokens,
     List<String> addresses,
   ) async {
-    assert(addresses.isNotEmpty && tokens.isNotEmpty,
-        'addresses and tokens should not be empty');
-    assert(addresses.length == tokens.length,
-        'addresses and tokens length should be equal');
+    assert(
+      addresses.isNotEmpty && tokens.isNotEmpty,
+      'addresses and tokens should not be empty',
+    );
+    assert(
+      addresses.length == tokens.length,
+      'addresses and tokens length should be equal',
+    );
 
-    final payload = new Iterable<int>.generate(tokens.length)
+    final payload = Iterable<int>.generate(tokens.length)
         .map(
           (e) => MulticallPayload.fromFunctionAbi(
             tokens[e],
@@ -52,7 +62,7 @@ class Multicall {
 
     final res = await aggregate(payload);
 
-    return res.returnData.map((e) => BigInt.parse(e)).toList();
+    return res.returnData.map(BigInt.parse).toList();
   }
 
   Future<List<BigInt>> multipleERC20Allowance(
@@ -60,10 +70,16 @@ class Multicall {
     List<String> owners,
     List<String> spenders,
   ) async {
-    assert(tokens.isNotEmpty && owners.isNotEmpty && spenders.isNotEmpty);
-    assert(tokens.length == owners.length && tokens.length == spenders.length);
+    assert(
+      tokens.isNotEmpty && owners.isNotEmpty && spenders.isNotEmpty,
+      'Tokens, Owners and Spenders can not be empty',
+    );
+    assert(
+      tokens.length == owners.length && tokens.length == spenders.length,
+      'Owners & Spenders length should equal Toekns length',
+    );
 
-    final payload = new Iterable<int>.generate(tokens.length)
+    final payload = Iterable<int>.generate(tokens.length)
         .map(
           (e) => MulticallPayload.fromFunctionAbi(
             tokens[e],
@@ -75,7 +91,7 @@ class Multicall {
 
     final res = await aggregate(payload);
 
-    return res.returnData.map((e) => BigInt.parse(e)).toList();
+    return res.returnData.map(BigInt.parse).toList();
   }
 }
 
@@ -85,17 +101,25 @@ class MulticallPayload {
 
   const MulticallPayload(this.address, this.data);
 
-  factory MulticallPayload.fromFunctionAbi(String address, String functionAbi,
-      [List<dynamic>? args]) {
+  factory MulticallPayload.fromFunctionAbi(
+    String address,
+    String functionAbi, [
+    List<dynamic>? args,
+  ]) {
     final interface = Interface([functionAbi]);
     final data = interface.encodeFunctionDataFromFragment(
-        interface.fragments.first, args);
+      interface.fragments.first,
+      args,
+    );
     return MulticallPayload(address, data);
   }
 
   factory MulticallPayload.fromInterfaceFunction(
-      String address, Interface interface, String function,
-      [List<dynamic>? args]) {
+    String address,
+    Interface interface,
+    String function, [
+    List<dynamic>? args,
+  ]) {
     final data = interface.encodeFunctionData(function, args);
     return MulticallPayload(address, data);
   }

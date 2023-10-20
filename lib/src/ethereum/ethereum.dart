@@ -1,12 +1,13 @@
-@JS("window")
+// ignore_for_file: prefer_constructors_over_static_methods, provide_deprecation_message, inference_failure_on_function_invocation, avoid_dynamic_calls, deprecated_member_use_from_same_package
+
+@JS('window')
 library ethereum;
 
+import 'package:flutter_web3/src/ethereum/exception.dart';
+import 'package:flutter_web3/src/ethereum/utils.dart';
+import 'package:flutter_web3/src/interop_wrapper.dart';
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
-
-import './utils.dart';
-import '../interop_wrapper.dart';
-import 'exception.dart';
 
 part 'interop.dart';
 
@@ -41,9 +42,10 @@ class CurrencyParams extends Interop<_CurrencyParamsImpl> {
     required int decimals,
   }) =>
       CurrencyParams._(
-          _CurrencyParamsImpl(name: name, symbol: symbol, decimals: decimals));
+        _CurrencyParamsImpl(name: name, symbol: symbol, decimals: decimals),
+      );
 
-  const CurrencyParams._(_CurrencyParamsImpl impl) : super.internal(impl);
+  const CurrencyParams._(super.impl) : super.internal();
 
   int get decimals => impl.decimals;
 
@@ -61,8 +63,7 @@ class Ethereum extends Interop<_EthereumImpl> {
   static Ethereum get ethereum => Ethereum._(_ethereum!);
 
   /// Getter for boolean to detect Ethereum object support. without calling itself to prevent js undefined error.
-  static bool get isSupported =>
-      hasProperty(_window, 'ethereum') || hasProperty(_window, 'BinanceChain');
+  static bool get isSupported => hasProperty(_window, 'ethereum') || hasProperty(_window, 'BinanceChain');
 
   /// Getter for default Ethereum provider object, cycles through available injector in environment.
   static Ethereum? get provider => isSupported
@@ -75,9 +76,10 @@ class Ethereum extends Interop<_EthereumImpl> {
   @deprecated
   static Ethereum? get web3 => _web3 != null ? Ethereum._(_web3!) : null;
 
-  const Ethereum._(_EthereumImpl impl) : super.internal(impl);
+  const Ethereum._(super.impl) : super.internal();
 
-  set autoRefreshOnNetworkChange(bool b) => impl.autoRefreshOnNetworkChange = b;
+  void autoRefreshOnNetworkChange({required bool isAutoRefreshEnabled}) =>
+      impl.autoRefreshOnNetworkChange(isAutoRefreshEnabled);
 
   /// Returns a hexadecimal string representing the current chain ID.
   ///
@@ -93,9 +95,7 @@ class Ethereum extends Interop<_EthereumImpl> {
 
   /// Returns List of accounts the node controls.
   Future<List<String>> getAccounts() async =>
-      (await request<List<dynamic>>('eth_accounts'))
-          .map((e) => e.toString())
-          .toList();
+      (await request<List<dynamic>>('eth_accounts')).map((e) => e.toString()).toList();
 
   /// Returns chain id in [int]
   ///
@@ -116,8 +116,7 @@ class Ethereum extends Interop<_EthereumImpl> {
   ///   }
   /// }
   /// ```
-  Future<int> getChainId() async =>
-      int.parse((await request('eth_chainId')).toString());
+  Future<int> getChainId() async => int.parse((await request<dynamic>('eth_chainId')).toString());
 
   /// Returns `true` if the provider is connected to the current chain, and `false` otherwise.
   ///
@@ -140,27 +139,29 @@ class Ethereum extends Interop<_EthereumImpl> {
   int listenerCount([String? eventName]) => impl.listenerCount(eventName);
 
   /// Returns the list of Listeners for the [eventName] events.
-  List listeners(String eventName) => impl.listeners(eventName);
+  List<dynamic> listeners(String eventName) => impl.listeners(eventName);
 
   /// Remove a [listener] for the [eventName] event. If no [listener] is provided, all listeners for [eventName] are removed.
-  off(String eventName, [Function? listener]) => callMethod(impl, 'off',
-      listener != null ? [eventName, allowInterop(listener)] : [eventName]);
+  dynamic off(String eventName, [Function? listener]) => callMethod(
+        impl,
+        'off',
+        listener != null ? [eventName, allowInterop(listener)] : [eventName],
+      );
 
   /// Add a [listener] to be triggered for each [eventName] event.
-  on(String eventName, Function listener) =>
-      callMethod(impl, 'on', [eventName, allowInterop(listener)]);
+  dynamic on(String eventName, Function listener) => callMethod(impl, 'on', [eventName, allowInterop(listener)]);
 
   /// Add a [listener] to be triggered for each accountsChanged event.
-  onAccountsChanged(void Function(List<String> accounts) listener) => on(
-      'accountsChanged',
-      (List<dynamic> accs) => listener(accs.map((e) => e.toString()).toList()));
+  dynamic onAccountsChanged(void Function(List<String> accounts) listener) => on(
+        'accountsChanged',
+        (List<dynamic> accs) => listener(accs.map((e) => e.toString()).toList()),
+      );
 
   /// Add a [listener] to be triggered for only the next [eventName] event, at which time it will be removed.
-  once(String eventName, Function listener) =>
-      callMethod(impl, 'once', [eventName, allowInterop(listener)]);
+  dynamic once(String eventName, Function listener) => callMethod(impl, 'once', [eventName, allowInterop(listener)]);
 
   /// Add a [listener] to be triggered for each chainChanged event.
-  onChainChanged(void Function(int chainId) listener) =>
+  dynamic onChainChanged(void Function(int chainId) listener) =>
       on('chainChanged', (dynamic cId) => listener(int.parse(cId.toString())));
 
   /// Add a [listener] to be triggered for each connect event.
@@ -168,29 +169,28 @@ class Ethereum extends Interop<_EthereumImpl> {
   /// This event is emitted when it first becomes able to submit RPC requests to a chain.
   ///
   /// We recommend using a connect event handler and the [Ethereum.isConnected] method in order to determine when/if the provider is connected.
-  onConnect(void Function(ConnectInfo connectInfo) listener) =>
-      on('connect', listener);
+  dynamic onConnect(void Function(ConnectInfo connectInfo) listener) => on('connect', listener);
 
   /// Add a [listener] to be triggered for each disconnect event.
   ///
   /// This event is emitted if it becomes unable to submit RPC requests to any chain. In general, this will only happen due to network connectivity issues or some unforeseen error.
   ///
   /// Once disconnect has been emitted, the provider will not accept any new requests until the connection to the chain has been re-restablished, which requires reloading the page. You can also use the [Ethereum.isConnected] method to determine if the provider is disconnected.
-  onDisconnect(void Function(ProviderRpcError error) listener) =>
+  dynamic onDisconnect(void Function(ProviderRpcError error) listener) =>
       on('disconnect', (ProviderRpcError error) => listener(error));
 
-  /// Add a [listener] to be triggered for each message event [type].
+  /// Add a [listener] to be triggered for each message event type.
   ///
   /// The MetaMask provider emits this event when it receives some message that the consumer should be notified of. The kind of message is identified by the type string.
   ///
   /// RPC subscription updates are a common use case for the message event. For example, if you create a subscription using `eth_subscribe`, each subscription update will be emitted as a message event with a type of `eth_subscription`.
-  onMessage(void Function(String type, dynamic data) listener) => on(
-      'message',
-      (ProviderMessage message) =>
-          listener(message.type, convertToDart(message.data)));
+  dynamic onMessage(void Function(String type, dynamic data) listener) => on(
+        'message',
+        (ProviderMessage message) => listener(message.type, convertToDart(message.data)),
+      );
 
   /// Remove all the listeners for the [eventName] events. If no [eventName] is provided, all events are removed.
-  removeAllListeners([String? eventName]) => impl.removeAllListeners(eventName);
+  dynamic removeAllListeners([String? eventName]) => impl.removeAllListeners(eventName);
 
   /// Use request to submit RPC requests with [method] and optionally [params] to Ethereum via MetaMask or provider that is currently using.
   ///
@@ -207,7 +207,9 @@ class Ethereum extends Interop<_EthereumImpl> {
               'request',
               [
                 _RequestArgumentsImpl(
-                    method: method, params: params != null ? params : [])
+                  method: method,
+                  params: params ?? <dynamic>[],
+                ),
               ],
             ),
           );
@@ -216,12 +218,13 @@ class Ethereum extends Interop<_EthereumImpl> {
       final err = convertToDart(error);
       switch (err['code']) {
         case 4001:
-          throw EthereumUserRejected();
+          throw const EthereumUserRejected();
         default:
-          if (err['message'] != null)
-            throw EthereumException(err['code'], err['message'], err['data']);
-          else
+          if (err['message'] != null) {
+            throw EthereumException(err['code'] as int, err['message'] as String, err['data']);
+          } else {
             rethrow;
+          }
       }
     }
   }
@@ -252,8 +255,7 @@ class Ethereum extends Interop<_EthereumImpl> {
   ///   }
   /// }
   /// ```
-  Future<List<String>> requestAccount() async =>
-      (await request<List<dynamic>>('eth_requestAccounts')).cast<String>();
+  Future<List<String>> requestAccount() async => (await request<List<dynamic>>('eth_requestAccounts')).cast<String>();
 
   @override
   String toString() => isSupported
@@ -288,12 +290,12 @@ class Ethereum extends Interop<_EthereumImpl> {
   }) =>
       request('wallet_addEthereumChain', [
         _ChainParamsImpl(
-          chainId: '0x' + chainId.toRadixString(16),
+          chainId: '0x${chainId.toRadixString(16)}',
           chainName: chainName,
           nativeCurrency: nativeCurrency.impl,
           rpcUrls: rpcUrls,
           blockExplorerUrls: blockExplorerUrls,
-        )
+        ),
       ]);
 
   /// Creates a confirmation asking the user to switch to the chain with the specified [chainId].
@@ -334,12 +336,15 @@ class Ethereum extends Interop<_EthereumImpl> {
   ///   );
   /// }
   /// ```
-  Future<void> walletSwitchChain(int chainId,
-      [void Function()? unrecognizedChainHandler]) async {
+  Future<void> walletSwitchChain(
+    int chainId, [
+    void Function()? unrecognizedChainHandler,
+  ]) async {
     try {
       await request('wallet_switchEthereumChain', [
         _AddEthereumChainParameterImpl(
-            chainId: '0x' + chainId.toRadixString(16)),
+          chainId: '0x${chainId.toRadixString(16)}',
+        ),
       ]);
     } catch (error) {
       switch (convertToDart(error)['code']) {
@@ -347,7 +352,6 @@ class Ethereum extends Interop<_EthereumImpl> {
           unrecognizedChainHandler != null
               ? unrecognizedChainHandler.call()
               : throw EthereumUnrecognizedChainException(chainId);
-          break;
         default:
           rethrow;
       }

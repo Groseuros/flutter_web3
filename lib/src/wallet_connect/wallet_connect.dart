@@ -1,14 +1,15 @@
-@JS("WalletConnectProvider")
+// ignore_for_file: inference_failure_on_function_invocation, prefer_constructors_over_static_methods
+
+@JS('WalletConnectProvider')
 library wallet_connect_provider;
 
 import 'dart:core';
 
+import 'package:flutter_web3/src/ethereum/ethereum.dart';
+import 'package:flutter_web3/src/ethereum/utils.dart';
+import 'package:flutter_web3/src/interop_wrapper.dart';
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
-
-import '../ethereum/ethereum.dart';
-import '../ethereum/utils.dart';
-import '../interop_wrapper.dart';
 
 part 'interop.dart';
 
@@ -48,9 +49,7 @@ class WalletConnectProvider extends Interop<_WalletConnectProviderImpl> {
             qrCode: qrCode,
             chainId: chainId,
             networkId: networkId,
-            qrcodeModalOptions: mobileLinks != null
-                ? _QrcodeModalOptionsImpl(mobileLinks: mobileLinks)
-                : null,
+            qrcodeModalOptions: mobileLinks != null ? _QrcodeModalOptionsImpl(mobileLinks: mobileLinks) : null,
           ),
         ),
       );
@@ -74,10 +73,10 @@ class WalletConnectProvider extends Interop<_WalletConnectProviderImpl> {
   /// ```
   factory WalletConnectProvider.fromRpc(
     Map<int, String> rpc, {
+    required int chainId,
     String? network,
     String? bridge,
     bool? qrCode,
-    required int chainId,
     int? networkId,
     List<String>? mobileLinks,
   }) {
@@ -91,16 +90,13 @@ class WalletConnectProvider extends Interop<_WalletConnectProviderImpl> {
           qrCode: qrCode,
           chainId: chainId,
           networkId: networkId,
-          qrcodeModalOptions: mobileLinks != null
-              ? _QrcodeModalOptionsImpl(mobileLinks: mobileLinks)
-              : null,
+          qrcodeModalOptions: mobileLinks != null ? _QrcodeModalOptionsImpl(mobileLinks: mobileLinks) : null,
         ),
       ),
     );
   }
 
-  const WalletConnectProvider._(_WalletConnectProviderImpl impl)
-      : super.internal(impl);
+  const WalletConnectProvider._(super.impl) : super.internal();
 
   /// Accounts which is at provider disposal.
   List<String> get accounts => impl.accounts;
@@ -108,15 +104,15 @@ class WalletConnectProvider extends Interop<_WalletConnectProviderImpl> {
   /// Main network chain id.
   String get chainId => impl.chainId;
 
-  /// `true` if [this] is connected successfully to rpc provider.
+  /// `true` if this is connected successfully to rpc provider.
   bool get connected => impl.connected;
 
-  /// `true` if [this] is connecting successfully to rpc provider.
+  /// `true` if this is connecting successfully to rpc provider.
   bool get isConnecting => impl.isConnecting;
 
   /// Chain id and rpc url map.
-  Map<int, String> get rpc => (convertToDart(getProperty(impl, 'rpc')) as Map)
-      .map((key, value) => MapEntry(int.parse(key), value.toString()));
+  Map<int, String> get rpc => (convertToDart(getProperty<dynamic>(impl, 'rpc')) as Map)
+      .map((key, value) => MapEntry(int.parse(key as String), value.toString()));
 
   /// Main network rpc url.
   String get rpcUrl => impl.rpcUrl;
@@ -136,34 +132,35 @@ class WalletConnectProvider extends Interop<_WalletConnectProviderImpl> {
   Future<void> connect() => promiseToFuture(callMethod(impl, 'enable', []));
 
   /// Close provider session.
-  Future<void> disconnect() =>
-      promiseToFuture(callMethod(impl, 'disconnect', []));
+  Future<void> disconnect() => promiseToFuture(callMethod(impl, 'disconnect', []));
 
   /// Returns the number of listeners for the [eventName] events. If no [eventName] is provided, the total number of listeners is returned.
   int listenerCount([String? eventName]) => impl.listenerCount(eventName);
 
   /// Returns the list of Listeners for the [eventName] events.
-  List listeners(String eventName) => impl.listeners(eventName);
+  List<dynamic> listeners(String eventName) => impl.listeners(eventName);
 
   /// Remove a [listener] for the [eventName] event. If no [listener] is provided, all listeners for [eventName] are removed.
-  off(String eventName, [Function? listener]) => callMethod(impl, 'off',
-      listener != null ? [eventName, allowInterop(listener)] : [eventName]);
+  dynamic off(String eventName, [Function? listener]) => callMethod(
+        impl,
+        'off',
+        listener != null ? [eventName, allowInterop(listener)] : [eventName],
+      );
 
   /// Add a [listener] to be triggered for each [eventName] event.
-  on(String eventName, Function listener) =>
-      callMethod(impl, 'on', [eventName, allowInterop(listener)]);
+  dynamic on(String eventName, Function listener) => callMethod(impl, 'on', [eventName, allowInterop(listener)]);
 
   /// Add a [listener] to be triggered for each accountsChanged event.
-  onAccountsChanged(void Function(List<String> accounts) listener) => on(
-      'accountsChanged',
-      (List<dynamic> accs) => listener(accs.map((e) => e.toString()).toList()));
+  dynamic onAccountsChanged(void Function(List<String> accounts) listener) => on(
+        'accountsChanged',
+        (List<dynamic> accs) => listener(accs.map((e) => e.toString()).toList()),
+      );
 
   /// Add a [listener] to be triggered for only the next [eventName] event, at which time it will be removed.
-  once(String eventName, Function listener) =>
-      callMethod(impl, 'once', [eventName, allowInterop(listener)]);
+  dynamic once(String eventName, Function listener) => callMethod(impl, 'once', [eventName, allowInterop(listener)]);
 
   /// Add a [listener] to be triggered for each chainChanged event.
-  onChainChanged(void Function(int chainId) listener) =>
+  dynamic onChainChanged(void Function(int chainId) listener) =>
       on('chainChanged', (dynamic cId) => listener(int.parse(cId.toString())));
 
   /// Add a [listener] to be triggered for each connect event.
@@ -171,28 +168,27 @@ class WalletConnectProvider extends Interop<_WalletConnectProviderImpl> {
   /// This event is emitted when it first becomes able to submit RPC requests to a chain.
   ///
   /// We recommend using a connect event handler and the [Ethereum.isConnected] method in order to determine when/if the provider is connected.
-  onConnect(void Function() listener) => on('connect', listener);
+  dynamic onConnect(void Function() listener) => on('connect', listener);
 
   /// Add a [listener] to be triggered for each disconnect event.
   ///
   /// This event is emitted if it becomes unable to submit RPC requests to any chain. In general, this will only happen due to network connectivity issues or some unforeseen error.
   ///
   /// Once disconnect has been emitted, the provider will not accept any new requests until the connection to the chain has been re-restablished, which requires reloading the page. You can also use the [Ethereum.isConnected] method to determine if the provider is disconnected.
-  onDisconnect(void Function(int code, String reason) listener) =>
-      on('disconnect', listener);
+  dynamic onDisconnect(void Function(int code, String reason) listener) => on('disconnect', listener);
 
-  /// Add a [listener] to be triggered for each message event [type].
+  /// Add a [listener] to be triggered for each message event type.
   ///
   /// The MetaMask provider emits this event when it receives some message that the consumer should be notified of. The kind of message is identified by the type string.
   ///
   /// RPC subscription updates are a common use case for the message event. For example, if you create a subscription using `eth_subscribe`, each subscription update will be emitted as a message event with a type of `eth_subscription`.
-  onMessage(void Function(String type, dynamic data) listener) => on(
-      'message',
-      (ProviderMessage message) =>
-          listener(message.type, convertToDart(message.data)));
+  dynamic onMessage(void Function(String type, dynamic data) listener) => on(
+        'message',
+        (ProviderMessage message) => listener(message.type, convertToDart(message.data)),
+      );
 
   /// Remove all the listeners for the [eventName] events. If no [eventName] is provided, all events are removed.
-  removeAllListeners([String? eventName]) => impl.removeAllListeners(eventName);
+  dynamic removeAllListeners([String? eventName]) => impl.removeAllListeners(eventName);
 
   /// Use request to submit RPC requests with [method] and optionally [params] to Ethereum via Wallet Connect.
   ///
@@ -208,7 +204,9 @@ class WalletConnectProvider extends Interop<_WalletConnectProviderImpl> {
             'request',
             [
               _RequestArgumentsImpl(
-                  method: method, params: params != null ? params : [])
+                method: method,
+                params: params ?? <dynamic>[],
+              ),
             ],
           ),
         );
@@ -251,7 +249,7 @@ class WalletConnectProvider extends Interop<_WalletConnectProviderImpl> {
 
 /// Metadata information of specific wallet provider.
 class WalletMeta extends Interop<_WalletMetaImpl> {
-  const WalletMeta._(_WalletMetaImpl impl) : super.internal(impl);
+  const WalletMeta._(super.impl) : super.internal();
 
   /// Description of wallet.
   String get description => impl.description;
