@@ -56,6 +56,25 @@ class _ContractImpl {
   external void removeAllListeners([dynamic eventName]);
 }
 
+@JS('ContractFactory')
+class _ContractFactoryImpl {
+  external _ContractFactoryImpl(dynamic interface, String bytecode, dynamic providerOrSigner);
+
+  external _ContractFactoryImpl connect(dynamic providerOrSigner);
+
+  external Interface get interface;
+
+  external String get bytecode;
+
+  external _SignerImpl? get signer;
+
+  external _ContractImpl attach(String address);
+
+  external _UnsignedTransactionImpl getDeployTransaction(dynamic args, [_TransactionOverrideImpl overrides]);
+
+  external _ContractImpl deploy(dynamic args, [_TransactionOverrideImpl overrides]);
+}
+
 @JS()
 @anonymous
 class _EventFilterImpl {
@@ -310,6 +329,28 @@ class _SignerImpl {
   external _SignerImpl connect(_ProviderImpl provider);
 
   external static bool isSigner(Object object);
+}
+
+@JS()
+@anonymous
+class _UnsignedTransactionImpl {
+  external String get to;
+
+  external int get nonce;
+
+  external BigNumber get gasLimit;
+
+  external BigNumber get gasPrice;
+
+  external BigNumber get maxFeePerGas;
+
+  external BigNumber get maxPriorityFeePerGas;
+
+  external String get data;
+
+  external BigNumber get value;
+
+  external int get chainId;
 }
 
 @JS()

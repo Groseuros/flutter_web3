@@ -14,6 +14,7 @@ import 'package:js/js_util.dart';
 part 'access_list.dart';
 part 'block.dart';
 part 'contract.dart';
+part 'contract_factory.dart';
 part 'event.dart';
 part 'fee_data.dart';
 part 'filter.dart';
