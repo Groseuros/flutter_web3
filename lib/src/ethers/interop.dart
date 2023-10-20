@@ -412,6 +412,7 @@ class _TransactionRequestImpl {
     BigNumber? value,
     BigNumber? gasLimit,
     BigNumber? gasPrice,
+    int? type,
     int? nonce,
     String? data,
     _AccessListImpl? accessList,
@@ -434,6 +435,8 @@ class _TransactionRequestImpl {
   external BigNumber? get maxPriorityFeePerGas;
 
   external String? get method;
+
+  external int? get type;
 
   external int? get nonce;
 

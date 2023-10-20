@@ -199,6 +199,7 @@ class TransactionRequest extends Interop<_TransactionRequestImpl> {
     BigInt? value,
     BigInt? gasLimit,
     BigInt? gasPrice,
+    int? type,
     int? nonce,
     String? data,
     BigInt? maxFeePerGas,
@@ -211,6 +212,7 @@ class TransactionRequest extends Interop<_TransactionRequestImpl> {
         from: from,
         data: data,
         value: value?.toBigNumber,
+        type: type,
         nonce: nonce,
         gasLimit: gasLimit?.toBigNumber,
         gasPrice: gasPrice?.toBigNumber,
@@ -255,6 +257,9 @@ class TransactionRequest extends Interop<_TransactionRequestImpl> {
   BigInt? get maxPriorityFeePerGas => impl.maxPriorityFeePerGas?.toBigInt;
 
   String? get method => impl.method;
+
+  ///The EIP-2718 type of this transaction envelope, or null for to use the network default. To force using a legacy transaction without an envelope, use type 0.
+  int? get type => impl.type;
 
   /// The nonce for this transaction. This should be set to the number of transactions ever sent from this address.
   int? get nonce => impl.nonce;
