@@ -1,11 +1,9 @@
-part of ethers;
+part of 'ethers.dart';
 
 /// An EIP-2930 transaction allows an optional AccessList which causes a transaction to warm (i.e. pre-cache) another addresses state and the specified storage keys.
 ///
 /// This incurs an increased intrinsic cost for the transaction, but provides discounts for storage and state access throughout the execution of the transaction.
 class AccessList extends Interop<_AccessListImpl> {
-  const AccessList._(_AccessListImpl impl) : super.internal(impl);
-
   /// Create new [AccessList] from [address] and [storageKeys], [storageKeys] elements must be empty or bytes32 string.
   ///
   /// ---
@@ -21,6 +19,7 @@ class AccessList extends Interop<_AccessListImpl> {
   /// ```
   factory AccessList(String address, List<String> storageKeys) =>
       AccessList._(_AccessListImpl(address: address, storageKeys: storageKeys));
+  const AccessList._(super.impl) : super.internal();
 
   String get address => impl.address;
 

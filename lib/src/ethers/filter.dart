@@ -1,4 +1,6 @@
-part of ethers;
+// ignore_for_file: library_private_types_in_public_api
+
+part of 'ethers.dart';
 
 /// An event filter is made up of topics, which are values logged in a Bloom Filter, allowing efficient searching for entries which match a filter.
 class EventFilter<T extends _EventFilterImpl> extends Interop<T> {
@@ -71,14 +73,16 @@ class Filter extends EventFilter<_FilterImpl> {
     dynamic toBlock,
     dynamic fromBlock,
   }) =>
-      Filter._(_FilterImpl(
-        address: address,
-        topics: topics,
-        fromBlock: fromBlock,
-        toBlock: toBlock,
-      ));
+      Filter._(
+        _FilterImpl(
+          address: address,
+          topics: topics,
+          fromBlock: fromBlock,
+          toBlock: toBlock,
+        ),
+      );
 
-  Filter._(_FilterImpl impl) : super._(impl);
+  Filter._(_FilterImpl super.impl) : super._();
 
   /// The starting block (inclusive) to search for logs matching the filter criteria.
   dynamic get fromBlock => impl.fromBlock;
@@ -91,7 +95,7 @@ class Filter extends EventFilter<_FilterImpl> {
   /// Positive number mean block at that height. Negative mean block that many block ago.
   ///
   /// Or a Hex [String] block at that height.
-  set fromBlock(blockTag) => impl.fromBlock = blockTag;
+  set fromBlock(dynamic blockTag) => impl.fromBlock = blockTag;
 
   /// The end block (inclusive) to search for logs matching the filter criteria.
   dynamic get toBlock => impl.toBlock;
@@ -104,7 +108,7 @@ class Filter extends EventFilter<_FilterImpl> {
   /// Positive number mean block at that height. Negative mean block that many block ago.
   ///
   /// Or a Hex [String] block at that height.
-  set toBlock(blockTag) => impl.toBlock = blockTag;
+  set toBlock(dynamic blockTag) => impl.toBlock = blockTag;
 
   @override
   String toString() => '${super.toString()} from $fromBlock to $toBlock';

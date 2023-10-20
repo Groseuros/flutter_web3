@@ -12,9 +12,11 @@ class EthereumException implements Exception {
 class EthereumUnrecognizedChainException extends EthereumException {
   final int chainId;
 
-  const EthereumUnrecognizedChainException(this.chainId,
-      [int code = 4902, String message = ''])
-      : super(code, message, null);
+  const EthereumUnrecognizedChainException(
+    this.chainId, [
+    int code = 4902,
+    String message = '',
+  ]) : super(code, message, null);
 
   @override
   String toString() =>
@@ -22,8 +24,7 @@ class EthereumUnrecognizedChainException extends EthereumException {
 }
 
 class EthereumUserRejected extends EthereumException {
-  const EthereumUserRejected([int code = 4001, String message = ''])
-      : super(code, message, null);
+  const EthereumUserRejected([int code = 4001, String message = '']) : super(code, message, null);
 
   @override
   String toString() => 'EthereumUserRejected: User rejected the request';

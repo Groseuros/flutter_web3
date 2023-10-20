@@ -19,13 +19,15 @@ class FlutterWeb3 {
   ///   runApp(MyApp());
   /// }
   /// ```
-  static Future<void> inject(FlutterWeb3InjectionTypes injectionType,
-      [String version = 'latest']) async {
+  static Future<void> inject(
+    FlutterWeb3InjectionTypes injectionType, [
+    String version = 'latest',
+  ]) async {
     AMDJS.verbose = false;
 
     await AMDJS.require(
       injectionType.module,
-      jsFullPath: injectionType.path.replaceFirst(r'latest', version),
+      jsFullPath: injectionType.path.replaceFirst('latest', version),
       globalJSVariableName: injectionType.variable,
     );
   }
@@ -43,7 +45,7 @@ class FlutterWeb3 {
   /// ```
   static Future<void> injectAll() async {
     AMDJS.verbose = false;
-    await Future.wait(FlutterWeb3InjectionTypes.values.map((e) => inject(e)));
+    await Future.wait(FlutterWeb3InjectionTypes.values.map(inject));
   }
 }
 
@@ -58,15 +60,13 @@ extension _InjectionInformation on FlutterWeb3InjectionTypes {
     FlutterWeb3InjectionTypes.ethers: {
       'module': 'ethers',
       'variable': 'ethers',
-      'path':
-          'https://cdn.jsdelivr.net/npm/ethers@latest/dist/ethers.umd.min.js'
+      'path': 'https://cdn.jsdelivr.net/npm/ethers@latest/dist/ethers.umd.min.js',
     },
     FlutterWeb3InjectionTypes.walletConnect: {
       'module': 'WalletConnectProvider',
       'variable': 'WalletConnectProvider',
-      'path':
-          'https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@latest/dist/umd/index.min.js'
-    }
+      'path': 'https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@latest/dist/umd/index.min.js',
+    },
   };
 
   String get module => _info[this]!['module']!;

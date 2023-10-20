@@ -1,4 +1,4 @@
-part of ethers;
+part of 'ethers.dart';
 
 @JS()
 @anonymous
@@ -33,7 +33,7 @@ class _ConstructorFragmentImpl extends _FragmentImpl {
   external static _ConstructorFragmentImpl from(dynamic source);
 }
 
-@JS("Contract")
+@JS('Contract')
 class _ContractImpl {
   external _ContractImpl(String address, dynamic abi, dynamic providerOrSigner);
 
@@ -53,7 +53,7 @@ class _ContractImpl {
 
   external List<dynamic> listeners(dynamic eventName);
 
-  external removeAllListeners([dynamic eventName]);
+  external void removeAllListeners([dynamic eventName]);
 }
 
 @JS()
@@ -159,12 +159,13 @@ class _FunctionFragmentImpl extends _ConstructorFragmentImpl {
 
   external List<_ParamTypeImpl> get outputs;
 
+  @override
   external String get stateMutability;
 
   external static _FunctionFragmentImpl from(dynamic source);
 }
 
-@JS("utils.Interface")
+@JS('utils.Interface')
 class _InterfaceImpl {
   external _InterfaceImpl(dynamic abi);
 
@@ -176,11 +177,11 @@ class _InterfaceImpl {
 
   external dynamic get functions;
 
-  external List decodeFunctionResult(dynamic fragment, String data);
+  external List<dynamic> decodeFunctionResult(dynamic fragment, String data);
 
-  external List encodeFilterTopics(dynamic fragment, List values);
+  external List<dynamic> encodeFilterTopics(dynamic fragment, List<dynamic> values);
 
-  external String encodeFunctionData(dynamic fragment, [List? values]);
+  external String encodeFunctionData(dynamic fragment, [List<dynamic>? values]);
 
   external dynamic format([dynamic types]);
 
@@ -193,7 +194,7 @@ class _InterfaceImpl {
   external String getSighash(dynamic function);
 }
 
-@JS("providers.JsonRpcProvider")
+@JS('providers.JsonRpcProvider')
 class _JsonRpcProviderImpl extends _ProviderImpl {
   external _JsonRpcProviderImpl([String? rpcUrl]);
 }
@@ -262,7 +263,7 @@ class _ParamTypeImpl {
   external static _ParamTypeImpl from(String source);
 }
 
-@JS("providers")
+@JS('providers')
 class _ProviderImpl {}
 
 @JS()
@@ -304,7 +305,7 @@ class _RawTxParamsImpl {
   external String get to;
 }
 
-@JS("Signer")
+@JS('Signer')
 class _SignerImpl {
   external _SignerImpl connect(_ProviderImpl provider);
 
@@ -459,7 +460,7 @@ class _TransactionResponseImpl extends _TransactionImpl {
   external int? get type;
 }
 
-@JS("Wallet")
+@JS('Wallet')
 class _WalletImpl extends _SignerImpl {
   // ignore: unused_element
   external _WalletImpl(String privateKey, [_ProviderImpl? provider]);
@@ -474,6 +475,7 @@ class _WalletImpl extends _SignerImpl {
 
   external String get publicKey;
 
+  @override
   external _WalletImpl connect(_ProviderImpl provider);
 
   external Future<String> encrypt(
@@ -498,7 +500,7 @@ class _WalletImpl extends _SignerImpl {
   external static _WalletImpl fromMnemonic(String mnemonic, [String? path]);
 }
 
-@JS("providers.Web3Provider")
+@JS('providers.Web3Provider')
 class _Web3ProviderImpl extends _ProviderImpl {
   external _Web3ProviderImpl(dynamic eth);
 

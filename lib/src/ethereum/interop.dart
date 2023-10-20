@@ -1,16 +1,18 @@
-part of ethereum;
+// ignore_for_file: provide_deprecation_message, avoid_positional_boolean_parameters
 
-@JS("BinanceChain")
+part of 'ethereum.dart';
+
+@JS('BinanceChain')
 external _EthereumImpl? get _binanceChain;
 
-@JS("ethereum")
+@JS('ethereum')
 external _EthereumImpl? get _ethereum;
 
 @deprecated
-@JS("web3")
+@JS('web3')
 external _EthereumImpl? get _web3;
 
-@JS("window")
+@JS('window')
 external Object get _window;
 
 @JS()
@@ -64,7 +66,7 @@ class _CurrencyParamsImpl {
 @JS()
 @anonymous
 class _EthereumImpl {
-  external set autoRefreshOnNetworkChange(bool b);
+  external void autoRefreshOnNetworkChange(bool isAutoRefreshEnabled);
 
   external String get chainId;
 
@@ -77,7 +79,7 @@ class _EthereumImpl {
 
   external List<dynamic> listeners(String eventName);
 
-  external removeAllListeners([String? eventName]);
+  external void removeAllListeners([String? eventName]);
 }
 
 @JS()

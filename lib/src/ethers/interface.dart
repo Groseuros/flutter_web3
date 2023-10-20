@@ -1,4 +1,4 @@
-part of ethers;
+part of 'ethers.dart';
 
 /// Format types of Interface
 enum FormatTypes {
@@ -56,23 +56,20 @@ class Interface extends Interop<_InterfaceImpl> {
     return Interface._(_InterfaceImpl(abi));
   }
 
-  const Interface._(_InterfaceImpl impl) : super.internal(impl);
+  const Interface._(super.impl) : super.internal();
 
   /// The [ConstructorFragment] for the interface.
   ConstructorFragment get deploy => ConstructorFragment._(impl.deploy);
 
   /// All the [EventFragment] in the interface.
-  Map<String, EventFragment> get events =>
-      (dartify(impl.events) as Map<String, dynamic>)
-          .map((key, value) => MapEntry(key, EventFragment.from(jsify(value))));
+  Map<String, EventFragment> get events => (dartify(impl.events) as Map<String, dynamic>)
+      .map((key, value) => MapEntry(key, EventFragment.from(jsify(value))));
 
   /// All the [Fragment] in the interface.
-  List<Fragment> get fragments =>
-      impl.fragments.cast<_FragmentImpl>().map((e) => Fragment._(e)).toList();
+  List<Fragment> get fragments => impl.fragments.cast<_FragmentImpl>().map(Fragment._).toList();
 
   /// All the [FunctionFragment] in the interface.
-  Map<String, FunctionFragment> get functions => (dartify(impl.functions)
-          as Map<String, dynamic>)
+  Map<String, FunctionFragment> get functions => (dartify(impl.functions) as Map<String, dynamic>)
       .map((key, value) => MapEntry(key, FunctionFragment.from(jsify(value))));
 
   /// Returns the decoded values from the result of a call for [function] (see Specifying Fragments) for the given [data].
@@ -85,8 +82,7 @@ class Interface extends Interop<_InterfaceImpl> {
   /// iface.decodeFunctionResult('balanceOf', resultData);
   /// // [1000000000000000000]
   /// ```
-  List<dynamic> decodeFunctionResult(String function, String data) =>
-      impl.decodeFunctionResult(function, data);
+  List<dynamic> decodeFunctionResult(String function, String data) => impl.decodeFunctionResult(function, data);
 
   /// Returns the decoded values from the result of a call for [function] (see Specifying Fragments) for the given [data].
   ///
@@ -99,7 +95,9 @@ class Interface extends Interop<_InterfaceImpl> {
   /// // [1000000000000000000]
   /// ```
   List<dynamic> decodeFunctionResultFromFragment(
-          Fragment function, String data) =>
+    Fragment function,
+    String data,
+  ) =>
       impl.decodeFunctionResult(function.impl, data);
 
   /// Returns the encoded [topic] filter, which can be passed to getLogs for fragment (see Specifying Fragments) for the given [values].
@@ -124,8 +122,10 @@ class Interface extends Interop<_InterfaceImpl> {
   /// //   '0x0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba72'
   /// // ]
   /// ```
-  List<dynamic> encodeFilterTopics(String topic,
-          [List<dynamic> values = const []]) =>
+  List<dynamic> encodeFilterTopics(
+    String topic, [
+    List<dynamic> values = const [],
+  ]) =>
       impl.encodeFilterTopics(topic, values);
 
   /// Returns the encoded [topic] filter, which can be passed to getLogs for fragment (see Specifying Fragments) for the given [values].
@@ -150,8 +150,10 @@ class Interface extends Interop<_InterfaceImpl> {
   /// //   '0x0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba72'
   /// // ]
   /// ```
-  List<dynamic> encodeFilterTopicsFromFragment(Fragment topic,
-          [List<dynamic> values = const []]) =>
+  List<dynamic> encodeFilterTopicsFromFragment(
+    Fragment topic, [
+    List<dynamic> values = const [],
+  ]) =>
       impl.encodeFilterTopics(topic.impl, values);
 
   /// Returns the encoded data, which can be used as the data for a transaction for [function] (see Specifying Fragments) for the given [values].
@@ -167,8 +169,7 @@ class Interface extends Interop<_InterfaceImpl> {
   /// ]);
   /// // '0x23b872dd0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba72000000000000000000000000ab7c8803962c0f2f5bbbe3fa8bf41cd82aa1923c0000000000000000000000000000000000000000000000000de0b6b3a7640000'
   /// ```
-  String encodeFunctionData(String function, [List<dynamic>? values]) =>
-      impl.encodeFunctionData(function, values);
+  String encodeFunctionData(String function, [List<dynamic>? values]) => impl.encodeFunctionData(function, values);
 
   /// Returns the encoded data, which can be used as the data for a transaction for [function] (see Specifying Fragments) for the given [values].
   ///
@@ -183,8 +184,10 @@ class Interface extends Interop<_InterfaceImpl> {
   /// ]);
   /// // '0x23b872dd0000000000000000000000008ba1f109551bd432803012645ac136ddd64dba72000000000000000000000000ab7c8803962c0f2f5bbbe3fa8bf41cd82aa1923c0000000000000000000000000000000000000000000000000de0b6b3a7640000'
   /// ```
-  String encodeFunctionDataFromFragment(Fragment function,
-          [List<dynamic>? values]) =>
+  String encodeFunctionDataFromFragment(
+    Fragment function, [
+    List<dynamic>? values,
+  ]) =>
       impl.encodeFunctionData(function.impl, values);
 
   /// Return the formatted [Interface].
@@ -192,8 +195,7 @@ class Interface extends Interop<_InterfaceImpl> {
   /// [type] must be from [FormatTypes] variable.
   ///
   /// If the format type is json a single string is returned, otherwise an Array of the human-readable strings is returned.
-  dynamic format([FormatTypes? type]) =>
-      type != null ? impl.format(type.impl) : impl.format();
+  dynamic format([FormatTypes? type]) => type != null ? impl.format(type.impl) : impl.format();
 
   /// Format into [FormatTypes.full].
   ///
@@ -228,7 +230,7 @@ class Interface extends Interop<_InterfaceImpl> {
   /// ]
   /// '''
   /// ```
-  String formatJson() => format(FormatTypes.json);
+  String formatJson() => format(FormatTypes.json) as String;
 
   /// Format into [FormatTypes.minimal].
   ///
@@ -245,8 +247,7 @@ class Interface extends Interop<_InterfaceImpl> {
   EventFragment getEvent(String event) => EventFragment._(impl.getEvent(event));
 
   /// Returns the [FunctionFragment] for [event] fragment.
-  EventFragment getEventFromFragment(Fragment event) =>
-      EventFragment._(impl.getEvent(event.impl));
+  EventFragment getEventFromFragment(Fragment event) => EventFragment._(impl.getEvent(event.impl));
 
   /// Return the topic hash for [event].
   ///
@@ -262,12 +263,10 @@ class Interface extends Interop<_InterfaceImpl> {
   String getEventTopic(String event) => impl.getEventTopic(event);
 
   /// Returns the [FunctionFragment] for [function].
-  FunctionFragment getFunction(String function) =>
-      FunctionFragment._(impl.getFunction(function));
+  FunctionFragment getFunction(String function) => FunctionFragment._(impl.getFunction(function));
 
   /// Returns the [FunctionFragment] for [function] fragment.
-  FunctionFragment getFunctionFromFragment(Fragment function) =>
-      FunctionFragment._(impl.getFunction(function.impl));
+  FunctionFragment getFunctionFromFragment(Fragment function) => FunctionFragment._(impl.getFunction(function.impl));
 
   /// Return the sighash (or Function Selector) for [function].
   ///
@@ -290,8 +289,7 @@ class Interface extends Interop<_InterfaceImpl> {
   /// iface.getSighash(iface.fragments.first);
   /// // '0x70a08231'
   /// ```
-  String getSighashByFragment(Fragment fragment) =>
-      impl.getSighash(fragment.impl);
+  String getSighashByFragment(Fragment fragment) => impl.getSighash(fragment.impl);
 
   @override
   String toString() => 'Interface: ${format(FormatTypes.minimal)}';

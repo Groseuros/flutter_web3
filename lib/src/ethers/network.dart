@@ -1,8 +1,8 @@
-part of ethers;
+part of 'ethers.dart';
 
 /// A Network represents an Ethereum network.
 class Network extends Interop<_NetworkImpl> {
-  const Network._(_NetworkImpl impl) : super.internal(impl);
+  const Network._(super.impl) : super.internal();
 
   ///The Chain ID of the network.
   int get chainId => impl.chainId;

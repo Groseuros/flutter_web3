@@ -1,4 +1,6 @@
-part of ethers;
+// ignore_for_file: library_private_types_in_public_api
+
+part of 'ethers.dart';
 
 /// Information log of specific transaction.
 class Log<T extends _LogImpl> extends Interop<T> {
@@ -37,6 +39,5 @@ class Log<T extends _LogImpl> extends Interop<T> {
   int get transactionLogIndex => impl.transactionLogIndex;
 
   @override
-  String toString() =>
-      'Log: ${topics.length} topics from ${transactionHash.substring(0, 10)}';
+  String toString() => 'Log: ${topics.length} topics from ${transactionHash.substring(0, 10)}';
 }
