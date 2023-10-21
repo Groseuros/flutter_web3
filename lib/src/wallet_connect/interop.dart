@@ -86,3 +86,68 @@ class _WalletMetaImpl {
 
   external String get url;
 }
+
+@JS('WalletConnectEthereumProvider')
+class _WalletConnectEthereumProviderImpl {
+  external static Future<_WalletConnectEthereumProviderImpl> init(_WalletConnectEthereumProviderOptionsImpl options);
+
+  external List<String> get accounts;
+
+  external int get chainId;
+
+  external bool get connected;
+
+  external bool get isConnecting;
+
+  external String get rpcUrl;
+
+  external int listenerCount([String? eventName]);
+
+  external List<dynamic> listeners(String eventName);
+
+  external void removeAllListeners([String? eventName]);
+}
+
+@JS()
+@anonymous
+class _WalletConnectEthereumProviderOptionsImpl {
+  external factory _WalletConnectEthereumProviderOptionsImpl({
+    String projectId,
+    List<int> chains,
+    List<int>? optionalChains,
+    dynamic rpcMap,
+    bool? showQrModal,
+  });
+
+  external String projectId;
+  external List<int> chains;
+  external List<int>? optionalChains;
+  external List<String>? methods;
+  external dynamic rpcMap;
+  external bool? showQrModal;
+
+// qrModalOptions?: QrModalOptions;
+// optionalMethods?: string[];
+// events?: string[];
+// optionalEvents?: string[];
+// metadata?: Metadata;
+}
+
+@JS()
+@anonymous
+class ConnectOps {
+  external List<int>? chains;
+  external List<int>? optionalChains;
+  external Map<int, String>? rpcMap;
+  external String? pairingTopic;
+}
+
+@JS()
+@anonymous
+class _EthereumChainParameterImpl {
+  external factory _EthereumChainParameterImpl({
+    required String chainId,
+  });
+
+  external String get chainId;
+}
