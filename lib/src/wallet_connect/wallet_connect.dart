@@ -5,6 +5,7 @@ library wallet_connect_provider;
 
 import 'dart:core';
 
+import 'package:flutter_web3/flutter_web3.dart';
 import 'package:flutter_web3/src/ethereum/ethereum.dart';
 import 'package:flutter_web3/src/ethereum/utils.dart';
 import 'package:flutter_web3/src/interop_wrapper.dart';
@@ -265,4 +266,130 @@ class WalletMeta extends Interop<_WalletMetaImpl> {
 
   @override
   String toString() => 'WalletMeta: $name on $url';
+}
+
+class WalletConnectEthereumProvider extends Interop<_WalletConnectEthereumProviderImpl> {
+  static Future<WalletConnectEthereumProvider> init({
+    required String projectId,
+    required Map<int, String> rpcMap,
+    required List<int> chains,
+    bool? showQrModal,
+    List<int>? optionalChains,
+  }) async {
+    for (final chainId in chains) {
+      assert(
+        rpcMap.containsKey(chainId),
+        'Chain id ($chainId}) must be in rpc map.',
+      );
+    }
+    final options = _WalletConnectEthereumProviderOptionsImpl(
+      projectId: projectId,
+      rpcMap: _convertRpc(rpcMap),
+      showQrModal: showQrModal,
+      chains: chains,
+      optionalChains: optionalChains,
+    );
+    return WalletConnectEthereumProvider.wrap(
+      await promiseToFuture(_WalletConnectEthereumProviderImpl.init(options)),
+    );
+  }
+
+  // ignore: library_private_types_in_public_api
+  WalletConnectEthereumProvider.wrap(super.impl) : super.internal();
+
+  List<String> get accounts => impl.accounts;
+
+  // String get chainId => impl.chainId;
+  int get chainId => impl.chainId;
+
+  bool get connected => impl.connected;
+
+  bool get isConnecting => impl.isConnecting;
+
+  Map<int, String> get rpc => (convertToDart(getProperty(impl, 'rpc')) as Map)
+      .map((key, value) => MapEntry(int.parse(key as String), value.toString()));
+
+  String get rpcUrl => impl.rpcUrl;
+
+  Future<void> connect() => promiseToFuture(callMethod(impl, 'connect', [ConnectOps()]));
+
+  Future<void> disconnect() => promiseToFuture(callMethod(impl, 'disconnect', []));
+
+  int listenerCount([String? eventName]) => impl.listenerCount(eventName);
+
+  List<dynamic> listeners(String eventName) => impl.listeners(eventName);
+
+  dynamic off(String eventName, [Function? listener]) => callMethod(
+        impl,
+        'off',
+        listener != null ? [eventName, allowInterop(listener)] : [eventName],
+      );
+
+  dynamic on(String eventName, Function listener) => callMethod(impl, 'on', [eventName, allowInterop(listener)]);
+
+  dynamic onAccountsChanged(void Function(List<String> accounts) listener) => on(
+        'accountsChanged',
+        (List<dynamic> accs) => listener(accs.map((e) => e.toString()).toList()),
+      );
+
+  dynamic once(String eventName, Function listener) => callMethod(impl, 'once', [eventName, allowInterop(listener)]);
+
+  dynamic onChainChanged(void Function(int chainId) listener) =>
+      on('chainChanged', (dynamic cId) => listener(int.parse(cId.toString())));
+
+  dynamic onConnect(void Function() listener) => on('connect', listener);
+
+  dynamic onDisconnect(void Function(int code, String reason) listener) => on('disconnect', listener);
+
+  dynamic onMessage(void Function(String type, dynamic data) listener) => on(
+        'message',
+        (ProviderMessage message) => listener(message.type, convertToDart(message.data)),
+      );
+
+  void removeAllListeners([String? eventName]) => impl.removeAllListeners(eventName);
+
+  Future<T> request<T>(String method, [dynamic params]) async {
+    switch (T) {
+      case BigInt:
+        return BigInt.parse(await request<String>(method, params)) as T;
+      default:
+        return promiseToFuture<T>(
+          callMethod(
+            impl,
+            'request',
+            [
+              _RequestArgumentsImpl(
+                method: method,
+                params: params ?? <dynamic>[],
+              ),
+            ],
+          ),
+        );
+    }
+  }
+
+  Future<void> walletSwitchChain(
+    int chainId, [
+    void Function()? unrecognizedChainHandler,
+  ]) async {
+    try {
+      await request('wallet_switchEthereumChain', [
+        _EthereumChainParameterImpl(chainId: '0x${chainId.toRadixString(16)}'),
+      ]);
+    } catch (error) {
+      switch ((convertToDart(error) as Map)['code']) {
+        case 4902:
+          unrecognizedChainHandler != null
+              ? unrecognizedChainHandler.call()
+              : throw EthereumUnrecognizedChainException(chainId);
+        default:
+          rethrow;
+      }
+    }
+  }
+
+  @override
+  String toString() => connected
+      ? 'WalletConnectEthereumProvider: connected to $rpcUrl ($chainId) with $accounts'
+      : 'WalletConnectEthereumProvider: not connected to $rpcUrl($chainId)';
 }

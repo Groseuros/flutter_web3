@@ -377,7 +377,7 @@ class Web3Provider extends Provider<_Web3ProviderImpl> {
   factory Web3Provider(dynamic provider) {
     assert(provider != null, 'Provider must not be null.');
     assert(
-      provider is Interop && (provider is Ethereum || provider is WalletConnectProvider),
+      provider is Interop, //&& (provider is Ethereum || provider is WalletConnectProvider),
       'Provider type must be valid.',
     );
     return Web3Provider._(

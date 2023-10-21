@@ -2,6 +2,41 @@
 
 part of 'ethers.dart';
 
+/// An unsigned transaction represents a transaction that has not been signed and its values are flexible as long as they are not ambiguous.
+class UnsignedTransaction<T extends _UnsignedTransactionImpl> extends Interop<T> {
+  const UnsignedTransaction._(super.impl) : super.internal();
+
+  /// The address this transaction is to.
+  String get to => impl.to;
+
+  /// The nonce of this transaction.
+  int get nonce => impl.nonce;
+
+  /// The gas limit for this transaction.
+  BigInt get gasLimit => impl.gasLimit.toBigInt;
+
+  /// The gas price for this transaction.
+  BigInt get gasPrice => impl.gasPrice.toBigInt;
+
+  /// The maximum fee per unit of gas for this transaction.
+  BigInt get maxFeePerGas => impl.maxFeePerGas.toBigInt;
+
+  /// The maximum priority fee per unit of gas for this transaction.
+  BigInt get maxPriorityFeePerGas => impl.maxPriorityFeePerGas.toBigInt;
+
+  /// The data for this transaction.
+  String get data => impl.data;
+
+  /// The value (in wei) for this transaction.
+  BigInt get value => impl.value.toBigInt;
+
+  /// The chain ID for this transaction. If the chain ID is 0 or null, then EIP-155 is disabled and legacy signing is used, unless overridden in a signature.
+  int get chainId => impl.chainId;
+
+  @override
+  String toString() => 'UnsignedTransaction: value $value with gas limit $gasLimit and gas price $gasPrice';
+}
+
 /// A generic object to represent a transaction.
 class Transaction<T extends _TransactionImpl> extends Interop<T> {
   const Transaction._(super.impl) : super.internal();
@@ -199,6 +234,7 @@ class TransactionRequest extends Interop<_TransactionRequestImpl> {
     BigInt? value,
     BigInt? gasLimit,
     BigInt? gasPrice,
+    int? type,
     int? nonce,
     String? data,
     BigInt? maxFeePerGas,
@@ -211,6 +247,7 @@ class TransactionRequest extends Interop<_TransactionRequestImpl> {
         from: from,
         data: data,
         value: value?.toBigNumber,
+        type: type,
         nonce: nonce,
         gasLimit: gasLimit?.toBigNumber,
         gasPrice: gasPrice?.toBigNumber,
@@ -255,6 +292,9 @@ class TransactionRequest extends Interop<_TransactionRequestImpl> {
   BigInt? get maxPriorityFeePerGas => impl.maxPriorityFeePerGas?.toBigInt;
 
   String? get method => impl.method;
+
+  ///The EIP-2718 type of this transaction envelope, or null for to use the network default. To force using a legacy transaction without an envelope, use type 0.
+  int? get type => impl.type;
 
   /// The nonce for this transaction. This should be set to the number of transactions ever sent from this address.
   int? get nonce => impl.nonce;
