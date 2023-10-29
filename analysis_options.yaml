@@ -4,3 +4,4 @@ linter:
     public_member_api_docs: false
     lines_longer_than_80_chars: false
     sort_constructors_first: false
+    avoid_setters_without_getters: false
