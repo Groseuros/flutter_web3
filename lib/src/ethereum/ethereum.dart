@@ -78,8 +78,7 @@ class Ethereum extends Interop<_EthereumImpl> {
 
   const Ethereum._(super.impl) : super.internal();
 
-  void autoRefreshOnNetworkChange({required bool isAutoRefreshEnabled}) =>
-      impl.autoRefreshOnNetworkChange(isAutoRefreshEnabled);
+  set autoRefreshOnNetworkChange(bool isAutoRefreshEnabled) => impl.autoRefreshOnNetworkChange = isAutoRefreshEnabled;
 
   /// Returns a hexadecimal string representing the current chain ID.
   ///
@@ -142,26 +141,26 @@ class Ethereum extends Interop<_EthereumImpl> {
   List<dynamic> listeners(String eventName) => impl.listeners(eventName);
 
   /// Remove a [listener] for the [eventName] event. If no [listener] is provided, all listeners for [eventName] are removed.
-  dynamic off(String eventName, [Function? listener]) => callMethod(
+  void off(String eventName, [Function? listener]) => callMethod(
         impl,
         'off',
         listener != null ? [eventName, allowInterop(listener)] : [eventName],
       );
 
   /// Add a [listener] to be triggered for each [eventName] event.
-  dynamic on(String eventName, Function listener) => callMethod(impl, 'on', [eventName, allowInterop(listener)]);
+  void on(String eventName, Function listener) => callMethod(impl, 'on', [eventName, allowInterop(listener)]);
 
   /// Add a [listener] to be triggered for each accountsChanged event.
-  dynamic onAccountsChanged(void Function(List<String> accounts) listener) => on(
+  void onAccountsChanged(void Function(List<String> accounts) listener) => on(
         'accountsChanged',
         (List<dynamic> accs) => listener(accs.map((e) => e.toString()).toList()),
       );
 
   /// Add a [listener] to be triggered for only the next [eventName] event, at which time it will be removed.
-  dynamic once(String eventName, Function listener) => callMethod(impl, 'once', [eventName, allowInterop(listener)]);
+  void once(String eventName, Function listener) => callMethod(impl, 'once', [eventName, allowInterop(listener)]);
 
   /// Add a [listener] to be triggered for each chainChanged event.
-  dynamic onChainChanged(void Function(int chainId) listener) =>
+  void onChainChanged(void Function(int chainId) listener) =>
       on('chainChanged', (dynamic cId) => listener(int.parse(cId.toString())));
 
   /// Add a [listener] to be triggered for each connect event.
@@ -169,14 +168,14 @@ class Ethereum extends Interop<_EthereumImpl> {
   /// This event is emitted when it first becomes able to submit RPC requests to a chain.
   ///
   /// We recommend using a connect event handler and the [Ethereum.isConnected] method in order to determine when/if the provider is connected.
-  dynamic onConnect(void Function(ConnectInfo connectInfo) listener) => on('connect', listener);
+  void onConnect(void Function(ConnectInfo connectInfo) listener) => on('connect', listener);
 
   /// Add a [listener] to be triggered for each disconnect event.
   ///
   /// This event is emitted if it becomes unable to submit RPC requests to any chain. In general, this will only happen due to network connectivity issues or some unforeseen error.
   ///
   /// Once disconnect has been emitted, the provider will not accept any new requests until the connection to the chain has been re-restablished, which requires reloading the page. You can also use the [Ethereum.isConnected] method to determine if the provider is disconnected.
-  dynamic onDisconnect(void Function(ProviderRpcError error) listener) =>
+  void onDisconnect(void Function(ProviderRpcError error) listener) =>
       on('disconnect', (ProviderRpcError error) => listener(error));
 
   /// Add a [listener] to be triggered for each message event type.
@@ -184,13 +183,13 @@ class Ethereum extends Interop<_EthereumImpl> {
   /// The MetaMask provider emits this event when it receives some message that the consumer should be notified of. The kind of message is identified by the type string.
   ///
   /// RPC subscription updates are a common use case for the message event. For example, if you create a subscription using `eth_subscribe`, each subscription update will be emitted as a message event with a type of `eth_subscription`.
-  dynamic onMessage(void Function(String type, dynamic data) listener) => on(
+  void onMessage(void Function(String type, dynamic data) listener) => on(
         'message',
         (ProviderMessage message) => listener(message.type, convertToDart(message.data)),
       );
 
   /// Remove all the listeners for the [eventName] events. If no [eventName] is provided, all events are removed.
-  dynamic removeAllListeners([String? eventName]) => impl.removeAllListeners(eventName);
+  void removeAllListeners([String? eventName]) => impl.removeAllListeners(eventName);
 
   /// Use request to submit RPC requests with [method] and optionally [params] to Ethereum via MetaMask or provider that is currently using.
   ///

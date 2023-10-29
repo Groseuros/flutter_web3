@@ -66,7 +66,7 @@ class _CurrencyParamsImpl {
 @JS()
 @anonymous
 class _EthereumImpl {
-  external void autoRefreshOnNetworkChange(bool isAutoRefreshEnabled);
+  external set autoRefreshOnNetworkChange(bool isAutoRefreshEnabled);
 
   external String get chainId;
 

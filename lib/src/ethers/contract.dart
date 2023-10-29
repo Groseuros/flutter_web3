@@ -174,7 +174,7 @@ class Contract extends Interop<_ContractImpl> {
   }
 
   /// Remove a [listener] for the [event]. If no [listener] is provided, all listeners for [event] are removed.
-  dynamic off(dynamic event, [Function? listener]) => callMethod(
+  void off(dynamic event, [Function? listener]) => callMethod(
         impl,
         'off',
         listener != null
@@ -186,14 +186,14 @@ class Contract extends Interop<_ContractImpl> {
       );
 
   /// Add a [listener] to be triggered for each [event].
-  dynamic on(dynamic event, Function listener) => callMethod(
+  void on(dynamic event, Function listener) => callMethod(
         impl,
         'on',
         [if (event is EventFilter) event.impl else event, allowInterop(listener)],
       );
 
   /// Add a [listener] to be triggered for only the next [event], at which time it will be removed.
-  dynamic once(dynamic event, Function listener) => callMethod(
+  void once(dynamic event, Function listener) => callMethod(
         impl,
         'once',
         [if (event is EventFilter) event.impl else event, allowInterop(listener)],
